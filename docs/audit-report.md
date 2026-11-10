@@ -73,6 +73,8 @@ Legenda status: ✅ dibetulkan · 🔁 diputuskan atas nama pemilik proyek (dapa
 | 6 | Ketentuan non-komersial Vercel Hobby | 🔁 Hobby untuk MVP & kompetisi; pindah ke Pro sebelum monetisasi v2 | Selaras NFR-10 dan model freemium PRD | `infra-operasional.md` → Vercel; `tasks.md` → Roadmap v2.0 |
 | 7 | Batas materialisasi | Mengikuti FRD (tanpa batas per panggilan) | FRD prioritas tertinggi; volume maks ±60/hari | `alur-domain.md` |
 | 8 | Satu atau dua agen | 🔁 Dua agen (A/B) + "mode satu agen" (urutan nomor, sufiks `a` sebelum `b`) | Rencana berlaku di kedua skenario | `tasks.md` → Tim & Kepemilikan |
+| 9 | Paket Supabase (inactivity timeout & rate limit email) | Pemilik proyek (10 Nov 2026): **Free** untuk dev & prod. Inactivity timeout 30 hari tidak diatur (fitur khusus Pro); rate limit email 3/jam hanya di prod setelah SMTP Brevo (#14) | NFR-10 (free tier) | FRD `auth.md` → Sesi, `non-functional.md` NFR-04, `auth-akses.md` → Supabase: Konfigurasi Wajib |
+| 10 | Dependensi tooling di luar Versi Dikunci | Disetujui pemilik proyek saat #1a: `eslint@^9`, `@eslint/eslintrc@^3`, `eslint-plugin-boundaries@^5`, `prettier@^3`, `server-only`, `@types/*`; `packageManager: pnpm@10.34.9` | Diminta checklist #1a / dibutuhkan tooling Next 15 | `architecture/README.md` → Versi Dikunci |
 
 ## Aksi Manusia
 

@@ -324,7 +324,7 @@ Rujukan: design `layar-kasir.md` §1–5, §8 (state online), `layar-publik-auth
 - [ ] E2E (lokal & Preview): daftar → onboarding → tambah kasir → kasir login (username) → transaksi tunai & QRIS → stok berkurang → belanja bahan → HPP berubah → transaksi baru memakai HPP baru, transaksi lama tetap (BR-04).
 - [ ] Suite isolasi `tests/http`: semua endpoint dengan ID outlet lain → 404/403 (US-16).
 - [ ] E2E smoke Preview aktif di CI (bypass proteksi).
-- [ ] `migrate-prod.yml` dijalankan; prod ter-deploy; SMTP Brevo terpasang (reset kata sandi diuji); UptimeRobot aktif; smoke test manual di HP Android RAM 2–3 GB.
+- [ ] `migrate-prod.yml` dijalankan; prod ter-deploy; SMTP Brevo terpasang (reset kata sandi diuji) dan rate limit email Supabase prod diatur 3/jam; UptimeRobot aktif; smoke test manual di HP Android RAM 2–3 GB.
 
 ---
 

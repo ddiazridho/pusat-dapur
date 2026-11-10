@@ -33,7 +33,7 @@ Setiap lapis berdiri sendiri: menghapus satu lapis tidak membuka akses lintas ou
 | Penyimpanan sesi | Cookie `@supabase/ssr` (httpOnly, `Secure`, `SameSite=Lax`) |
 | Access token | JWT 1 jam, **asymmetric signing key** (JWKS) sehingga middleware Edge memverifikasi lokal dengan `supabase.auth.getClaims()` tanpa request ke server Auth |
 | Refresh | Rotasi refresh token aktif; middleware menyegarkan cookie bila access token hampir habis |
-| Masa idle | 30 hari (pengaturan "inactivity timeout" Supabase Auth) |
+| Masa idle | Tanpa batas: "inactivity timeout" Supabase hanya ada di paket Pro, proyek memakai Free (keputusan pemilik, `audit-report.md` â†’ Keputusan #9) |
 | Konfirmasi email | Nonaktif (FRD) |
 
 ### Revokasi Segera **[S]**
@@ -141,10 +141,10 @@ Server Components halaman memakai `getPageContext({ peran })` dengan langkah 2â€
 | JWT signing | Asymmetric (ECC/RSA), JWKS dipakai `getClaims()` |
 | JWT expiry | 3600 detik |
 | Refresh token rotation | On; reuse interval default |
-| Inactivity timeout | 30 hari |
-| Rate limit email | 3 email reset/jam per email (FRD) |
+| Inactivity timeout | Tidak diatur (paket Free; fitur khusus Pro) |
+| Rate limit email | Prod: 3 email/jam per project, diatur setelah SMTP Brevo terpasang (#14). Dev: bawaan 2 email/jam (tanpa SMTP kustom, tidak bisa diubah) |
 | SMTP | Kustom (`infra-operasional.md`) |
-| Site URL / redirect | Prod: `https://pusat-dapur.vercel.app` (redirect `https://pusat-dapur.vercel.app/reset-password`). Dev: `http://localhost:3000` + `https://*-<vercel-team>.vercel.app/**` (pola Preview) |
+| Site URL / redirect | Prod: `https://pusat-dapur.vercel.app` (redirect `https://pusat-dapur.vercel.app/reset-password`). Dev: Site URL `http://localhost:3000`; redirect `http://localhost:3000/**` + `https://pusat-dapur-*.vercel.app/**` (pola Preview) |
 | Signup publik | **Off** di Supabase (signup hanya lewat `POST /api/auth/daftar` dengan service role) agar rate limit & pembuatan outlet tidak bisa dilewati |
 
 ## Registrasi Pemilik (Kompensasi)
