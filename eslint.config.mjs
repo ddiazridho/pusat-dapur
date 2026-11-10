@@ -18,6 +18,8 @@ const compat = new FlatCompat({
 const elements = [
   { type: 'sw', mode: 'file', pattern: 'src/app/sw.ts' },
   { type: 'api', pattern: 'src/app/api' },
+  // Halaman (kasir) client-only: tanpa akses server agar shell bisa di-cache offline.
+  { type: 'kasir-page', pattern: 'src/app/[(]kasir[)]' },
   { type: 'app', pattern: 'src/app' },
   { type: 'middleware', mode: 'file', pattern: 'src/middleware.ts' },
   { type: 'server', pattern: 'src/server' },
@@ -29,7 +31,9 @@ const elements = [
 
 const layering = [
   { from: 'api', allow: ['shared', 'server', 'api'] },
-  { from: 'app', allow: ['shared', 'server', 'components', 'app'] },
+  { from: 'kasir-page', allow: ['shared', 'components', 'client', 'client-offline', 'kasir-page'] },
+  // `app` mencakup RSC (boleh server) dan client component `'use client'` (boleh client).
+  { from: 'app', allow: ['shared', 'server', 'components', 'client', 'client-offline', 'app'] },
   { from: 'middleware', allow: ['shared', 'server'] },
   { from: 'sw', allow: ['shared', 'client-offline'] },
   { from: 'server', allow: ['shared', 'server'] },
@@ -68,6 +72,7 @@ const config = [
     rules: {
       'boundaries/element-types': ['error', { default: 'disallow', rules: layering }],
       'boundaries/no-unknown': 'error',
+      'boundaries/no-unknown-files': 'error',
     },
   },
 ];
