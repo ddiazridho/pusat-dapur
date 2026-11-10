@@ -21,10 +21,13 @@
     "test:e2e": "playwright test",
     "db:local": "supabase start",
     "db:migrate:local": "node scripts/prisma-env.mjs local migrate dev",
-    "db:deploy:dev": "node scripts/prisma-env.mjs dev migrate deploy"
+    "db:deploy:dev": "node scripts/prisma-env.mjs dev migrate deploy",
+    "postinstall": "prisma generate",
+    "seed:dev": "node --experimental-strip-types --no-warnings scripts/seed-dev.ts"
   },
   "dependencies": {
     "@date-fns/tz": "^1.5.0",
+    "@prisma/client": "^6.19.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "date-fns": "^4.4.0",
@@ -54,6 +57,7 @@
     "fake-indexeddb": "^6.2.8",
     "jsdom": "^31.0.0",
     "prettier": "^3.6.0",
+    "prisma": "^6.19.3",
     "supabase": "^2.122.1",
     "tailwindcss": "^4.3.5",
     "typescript": "^5.9.3",
