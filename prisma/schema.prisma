@@ -1,0 +1,422 @@
+// Skema Pusat Dapur: docs/architecture/data-model.md (NFR-01, NFR-02, NFR-05).
+// Nama field = nama kolom (snake_case); model PascalCase via @@map.
+// Objek yang tidak bisa dimodelkan Prisma (CHECK, partial/expression index, trigger,
+// RLS, FK ke auth.users, publication) ada di SQL migrasi: prisma/manual-objects.sql.md.
+// Composite FK (x_id, outlet_id) -> parent(id, outlet_id) menjamin relasi satu outlet (ADR-07).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum Peran {
+  pemilik
+  kasir
+
+  @@map("peran")
+}
+
+enum ZonaWaktu {
+  Asia_Jakarta  @map("Asia/Jakarta")
+  Asia_Makassar @map("Asia/Makassar")
+  Asia_Jayapura @map("Asia/Jayapura")
+
+  @@map("zona_waktu")
+}
+
+enum Satuan {
+  gram
+  ml
+  buah
+
+  @@map("satuan")
+}
+
+enum SatuanInput {
+  gram
+  kg
+  ml
+  liter
+  buah
+
+  @@map("satuan_input")
+}
+
+enum TipePesanan {
+  dine_in
+  takeaway
+
+  @@map("tipe_pesanan")
+}
+
+enum MetodeBayar {
+  tunai
+  qris
+
+  @@map("metode_bayar")
+}
+
+enum StatusTransaksi {
+  selesai
+  dibatalkan
+
+  @@map("status_transaksi")
+}
+
+enum AlasanBatal {
+  salah_input
+  pelanggan_batal
+  lainnya
+
+  @@map("alasan_batal")
+}
+
+enum JenisMutasi {
+  stok_awal
+  penjualan
+  restock
+  opname
+  koreksi_sync
+  pembatalan
+
+  @@map("jenis_mutasi")
+}
+
+enum SumberHarga {
+  awal
+  restock
+  koreksi
+
+  @@map("sumber_harga")
+}
+
+enum AlasanOpname {
+  susut
+  tumpah_rusak
+  salah_catat
+  lainnya
+
+  @@map("alasan_opname")
+}
+
+enum JenisAlert {
+  stok_menipis
+  stok_tidak_sinkron
+
+  @@map("jenis_alert")
+}
+
+model Outlet {
+  id                 String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  nama_outlet        String
+  zona_waktu         ZonaWaktu @default(Asia_Jakarta)
+  ambang_margin      Int       @default(20) @db.SmallInt
+  blokir_stok_kurang Boolean   @default(true)
+  onboarding_selesai Boolean   @default(false)
+  is_demo            Boolean   @default(false)
+  created_at         DateTime  @default(now()) @db.Timestamptz(6)
+  updated_at         DateTime  @default(now()) @db.Timestamptz(6)
+
+  users            User[]
+  bahan_baku       BahanBaku[]
+  menus            Menu[]
+  resep_detail     ResepDetail[]
+  transaksi        Transaksi[]
+  detail_transaksi DetailTransaksi[]
+  stok_mutasi      StokMutasi[]
+  riwayat_harga    RiwayatHargaBeli[]
+  restock_log      RestockLog[]
+  stok_opname      StokOpname[]
+  opname_detail    StokOpnameDetail[]
+  stok_alert       StokAlert[]
+  transaksi_gagal  TransaksiGagal[]
+
+  @@map("outlets")
+}
+
+model User {
+  // id = auth.users.id (FK di SQL manual)
+  id               String   @id @db.Uuid
+  outlet_id        String   @db.Uuid
+  peran            Peran
+  read_only        Boolean  @default(false)
+  nama             String
+  username         String?
+  aktif            Boolean  @default(true)
+  sesi_valid_sejak DateTime @default(dbgenerated("date_trunc('second'::text, now())")) @db.Timestamptz(6)
+  created_at       DateTime @default(now()) @db.Timestamptz(6)
+
+  outlet               Outlet             @relation(fields: [outlet_id], references: [id])
+  transaksi_dikirim    Transaksi[]        @relation("transaksi_user")
+  transaksi_dibuat     Transaksi[]        @relation("transaksi_dibuat_oleh")
+  transaksi_dibatalkan Transaksi[]        @relation("transaksi_dibatalkan_oleh")
+  stok_mutasi          StokMutasi[]
+  riwayat_harga        RiwayatHargaBeli[]
+  restock_log          RestockLog[]
+  stok_opname          StokOpname[]
+  transaksi_gagal      TransaksiGagal[]
+
+  @@unique([id, outlet_id])
+  @@map("users")
+}
+
+model BahanBaku {
+  id                    String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  outlet_id             String    @db.Uuid
+  nama                  String
+  satuan                Satuan
+  stok_saat_ini         Decimal   @db.Decimal(12, 3)
+  threshold_min         Decimal   @db.Decimal(12, 3)
+  harga_beli_per_satuan Decimal   @db.Decimal(12, 2)
+  diarsipkan_at         DateTime? @db.Timestamptz(6)
+  created_at            DateTime  @default(now()) @db.Timestamptz(6)
+  updated_at            DateTime  @default(now()) @db.Timestamptz(6)
+
+  outlet        Outlet             @relation(fields: [outlet_id], references: [id])
+  resep_detail  ResepDetail[]
+  stok_mutasi   StokMutasi[]
+  riwayat_harga RiwayatHargaBeli[]
+  restock_log   RestockLog[]
+  opname_detail StokOpnameDetail[]
+  stok_alert    StokAlert[]
+
+  @@unique([id, outlet_id])
+  @@map("bahan_baku")
+}
+
+model RiwayatHargaBeli {
+  id            String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  outlet_id     String      @db.Uuid
+  bahan_baku_id String      @db.Uuid
+  harga_lama    Decimal?    @db.Decimal(12, 2)
+  harga_baru    Decimal     @db.Decimal(12, 2)
+  sumber        SumberHarga
+  // Polimorfik (restock_log saat sumber = restock): tanpa FK.
+  ref_id        String?     @db.Uuid
+  user_id       String      @db.Uuid
+  created_at    DateTime    @default(now()) @db.Timestamptz(6)
+
+  outlet     Outlet    @relation(fields: [outlet_id], references: [id])
+  bahan_baku BahanBaku @relation(fields: [bahan_baku_id, outlet_id], references: [id, outlet_id])
+  user       User      @relation(fields: [user_id, outlet_id], references: [id, outlet_id])
+
+  @@index([bahan_baku_id, created_at(sort: Desc)], map: "idx_riwayat_harga_bahan")
+  @@map("riwayat_harga_beli")
+}
+
+model Menu {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  outlet_id  String   @db.Uuid
+  nama       String
+  harga_jual BigInt
+  foto_url   String?
+  aktif      Boolean  @default(true)
+  hpp_cached Decimal  @default(0) @db.Decimal(18, 2)
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+  updated_at DateTime @default(now()) @db.Timestamptz(6)
+
+  outlet           Outlet            @relation(fields: [outlet_id], references: [id])
+  resep_detail     ResepDetail[]
+  detail_transaksi DetailTransaksi[]
+
+  @@unique([id, outlet_id])
+  @@map("menus")
+}
+
+model ResepDetail {
+  id            String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  outlet_id     String  @db.Uuid
+  menu_id       String  @db.Uuid
+  bahan_baku_id String  @db.Uuid
+  takaran       Decimal @db.Decimal(12, 3)
+
+  outlet     Outlet    @relation(fields: [outlet_id], references: [id])
+  menu       Menu      @relation(fields: [menu_id, outlet_id], references: [id, outlet_id], onDelete: Cascade)
+  bahan_baku BahanBaku @relation(fields: [bahan_baku_id, outlet_id], references: [id, outlet_id])
+
+  @@unique([menu_id, bahan_baku_id])
+  @@index([menu_id], map: "idx_resep_menu")
+  @@index([bahan_baku_id], map: "idx_resep_bahan")
+  @@map("resep_detail")
+}
+
+model Transaksi {
+  id              String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  outlet_id       String          @db.Uuid
+  client_tx_id    String          @db.Uuid
+  device_id       String          @db.Uuid
+  nomor_struk     String
+  token_struk     String          @unique
+  user_id         String          @db.Uuid
+  dibuat_oleh     String          @db.Uuid
+  waktu_transaksi DateTime        @db.Timestamptz(6)
+  dibuat_offline  Boolean
+  tipe_pesanan    TipePesanan
+  metode_bayar    MetodeBayar
+  total           BigInt
+  uang_diterima   BigInt?
+  kembalian       BigInt?
+  koreksi_stok    Boolean         @default(false)
+  status          StatusTransaksi @default(selesai)
+  dibatalkan_at   DateTime?       @db.Timestamptz(6)
+  // Composite FK opsional; onDelete Restrict eksplisit (default SetNull akan menulis
+  // NULL ke outlet_id juga).
+  dibatalkan_oleh String?         @db.Uuid
+  alasan_batal    AlasanBatal?
+  catatan_batal   String?
+  created_at      DateTime        @default(now()) @db.Timestamptz(6)
+
+  outlet   Outlet            @relation(fields: [outlet_id], references: [id])
+  user     User              @relation("transaksi_user", fields: [user_id, outlet_id], references: [id, outlet_id])
+  pembuat  User              @relation("transaksi_dibuat_oleh", fields: [dibuat_oleh, outlet_id], references: [id, outlet_id])
+  pembatal User?             @relation("transaksi_dibatalkan_oleh", fields: [dibatalkan_oleh, outlet_id], references: [id, outlet_id], onDelete: Restrict)
+  detail   DetailTransaksi[]
+
+  @@unique([id, outlet_id])
+  @@unique([outlet_id, client_tx_id])
+  @@unique([outlet_id, nomor_struk])
+  @@index([outlet_id, waktu_transaksi(sort: Desc)], map: "idx_transaksi_outlet_date")
+  @@index([outlet_id, created_at(sort: Desc)], map: "idx_transaksi_outlet_created")
+  @@map("transaksi")
+}
+
+model DetailTransaksi {
+  id           String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  outlet_id    String  @db.Uuid
+  transaksi_id String  @db.Uuid
+  menu_id      String  @db.Uuid
+  nama_menu    String
+  harga_jual   BigInt
+  hpp_snapshot Decimal @db.Decimal(18, 2)
+  qty          Int     @db.SmallInt
+  subtotal     BigInt
+
+  outlet    Outlet    @relation(fields: [outlet_id], references: [id])
+  transaksi Transaksi @relation(fields: [transaksi_id, outlet_id], references: [id, outlet_id])
+  menu      Menu      @relation(fields: [menu_id, outlet_id], references: [id, outlet_id])
+
+  @@unique([transaksi_id, menu_id])
+  @@index([transaksi_id], map: "idx_detail_transaksi")
+  @@index([outlet_id, menu_id], map: "idx_detail_outlet_menu")
+  @@map("detail_transaksi")
+}
+
+model StokMutasi {
+  id            String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  seq           BigInt      @unique @default(autoincrement())
+  outlet_id     String      @db.Uuid
+  bahan_baku_id String      @db.Uuid
+  jenis         JenisMutasi
+  jumlah        Decimal     @db.Decimal(12, 3)
+  // Polimorfik (transaksi / restock_log / stok_opname): tanpa FK.
+  ref_id        String?     @db.Uuid
+  user_id       String      @db.Uuid
+  created_at    DateTime    @default(now()) @db.Timestamptz(6)
+
+  outlet     Outlet    @relation(fields: [outlet_id], references: [id])
+  bahan_baku BahanBaku @relation(fields: [bahan_baku_id, outlet_id], references: [id, outlet_id])
+  user       User      @relation(fields: [user_id, outlet_id], references: [id, outlet_id])
+
+  @@index([bahan_baku_id, seq(sort: Desc)], map: "idx_mutasi_bahan")
+  @@map("stok_mutasi")
+}
+
+model RestockLog {
+  id                    String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  outlet_id             String      @db.Uuid
+  bahan_baku_id         String      @db.Uuid
+  user_id               String      @db.Uuid
+  jumlah_input          Decimal     @db.Decimal(12, 3)
+  satuan_input          SatuanInput
+  jumlah                Decimal     @db.Decimal(12, 3)
+  total_harga           BigInt
+  harga_beli_per_satuan Decimal     @db.Decimal(12, 2)
+  harga_beli_sebelumnya Decimal     @db.Decimal(12, 2)
+  created_at            DateTime    @default(now()) @db.Timestamptz(6)
+
+  outlet     Outlet    @relation(fields: [outlet_id], references: [id])
+  bahan_baku BahanBaku @relation(fields: [bahan_baku_id, outlet_id], references: [id, outlet_id])
+  user       User      @relation(fields: [user_id, outlet_id], references: [id, outlet_id])
+
+  @@index([outlet_id, created_at(sort: Desc)], map: "idx_restock_outlet_created")
+  @@map("restock_log")
+}
+
+model StokOpname {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  outlet_id  String   @db.Uuid
+  user_id    String   @db.Uuid
+  catatan    String?
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+
+  outlet Outlet             @relation(fields: [outlet_id], references: [id])
+  user   User               @relation(fields: [user_id, outlet_id], references: [id, outlet_id])
+  detail StokOpnameDetail[]
+
+  @@unique([id, outlet_id])
+  @@index([outlet_id, created_at(sort: Desc)], map: "idx_opname_outlet_created")
+  @@map("stok_opname")
+}
+
+model StokOpnameDetail {
+  id             String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  outlet_id      String        @db.Uuid
+  stok_opname_id String        @db.Uuid
+  bahan_baku_id  String        @db.Uuid
+  stok_sistem    Decimal       @db.Decimal(12, 3)
+  stok_fisik     Decimal       @db.Decimal(12, 3)
+  selisih        Decimal       @db.Decimal(12, 3)
+  alasan         AlasanOpname?
+  nilai_selisih  Decimal       @db.Decimal(18, 2)
+  // Salinan stok_opname.created_at.
+  created_at     DateTime      @db.Timestamptz(6)
+
+  outlet      Outlet     @relation(fields: [outlet_id], references: [id])
+  stok_opname StokOpname @relation(fields: [stok_opname_id, outlet_id], references: [id, outlet_id])
+  bahan_baku  BahanBaku  @relation(fields: [bahan_baku_id, outlet_id], references: [id, outlet_id])
+
+  @@unique([stok_opname_id, bahan_baku_id])
+  @@index([bahan_baku_id, created_at], map: "idx_opname_detail_bahan_created")
+  @@map("stok_opname_detail")
+}
+
+model StokAlert {
+  id               String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  outlet_id        String     @db.Uuid
+  bahan_baku_id    String     @db.Uuid
+  jenis            JenisAlert
+  sudah_dibaca     Boolean    @default(false)
+  dibaca_at        DateTime?  @db.Timestamptz(6)
+  ditutup_otomatis Boolean    @default(false)
+  created_at       DateTime   @default(now()) @db.Timestamptz(6)
+
+  outlet     Outlet    @relation(fields: [outlet_id], references: [id])
+  bahan_baku BahanBaku @relation(fields: [bahan_baku_id, outlet_id], references: [id, outlet_id])
+
+  @@map("stok_alert")
+}
+
+model TransaksiGagal {
+  id                 String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  outlet_id          String    @db.Uuid
+  client_tx_id       String    @db.Uuid
+  device_id          String    @db.Uuid
+  user_id            String    @db.Uuid
+  payload            Json
+  pesan_error        String
+  created_at         DateTime  @default(now()) @db.Timestamptz(6)
+  updated_at         DateTime  @default(now()) @db.Timestamptz(6)
+  ditangani_at       DateTime? @db.Timestamptz(6)
+  ditangani_otomatis Boolean   @default(false)
+
+  outlet Outlet @relation(fields: [outlet_id], references: [id])
+  user   User   @relation(fields: [user_id, outlet_id], references: [id, outlet_id])
+
+  @@unique([outlet_id, client_tx_id])
+  @@map("transaksi_gagal")
+}
