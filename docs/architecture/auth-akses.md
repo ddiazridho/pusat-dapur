@@ -33,7 +33,7 @@ Setiap lapis berdiri sendiri: menghapus satu lapis tidak membuka akses lintas ou
 | Penyimpanan sesi | Cookie `@supabase/ssr` (httpOnly, `Secure`, `SameSite=Lax`) |
 | Access token | JWT 1 jam, **asymmetric signing key** (JWKS) sehingga middleware Edge memverifikasi lokal dengan `supabase.auth.getClaims()` tanpa request ke server Auth |
 | Refresh | Rotasi refresh token aktif; middleware menyegarkan cookie bila access token hampir habis |
-| Masa idle | Tanpa batas: "inactivity timeout" Supabase hanya ada di paket Pro, proyek memakai Free (keputusan pemilik, `audit-report.md` → Keputusan #9) |
+| Masa idle | Tanpa batas: "inactivity timeout" Supabase hanya ada di paket Pro, proyek memakai Free (keputusan pemilik, `audit-report.md` → Keputusan atas Pertanyaan #9) |
 | Konfirmasi email | Nonaktif (FRD) |
 
 ### Revokasi Segera **[S]**
