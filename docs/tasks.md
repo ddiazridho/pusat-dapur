@@ -51,7 +51,7 @@ Tidak ada tanggal di file ini. Jika waktu habis, ikuti **MVP Cutline** di bawah.
 | Aspek | Aturan |
 |---|---|
 | Pemilik migrasi | **Hanya Agent A** membuat file di `prisma/migrations/` dan memperbarui `prisma/manual-objects.sql.md` (`docs/architecture/data-model.md` → Migrasi) |
-| Membuat migrasi | Terhadap Postgres lokal saja: `pnpm db:migrate:local` (`prisma migrate dev --create-only`), tambah SQL manual, hapus `DROP` untuk objek manual, terapkan lokal |
+| Membuat migrasi | Terhadap Postgres lokal saja: `pnpm db:migrate:local --create-only --name <nama>`, tambah SQL manual, hapus `DROP` untuk objek manual, terapkan lokal |
 | Dev | Sebelum membuka PR, Agent A menerapkan ke Supabase **dev** dengan `pnpm db:deploy:dev` (`prisma migrate deploy`) agar Preview berjalan. File migrasi yang sudah diterapkan ke dev tidak boleh diedit; perbaikan = migrasi baru |
 | Prod | Setelah merge, `migrate-prod.yml` menjalankan `prisma migrate deploy` ke **prod** (GitHub environment `production`, approval pemilik proyek) |
 | `ci.yml` | Tidak pernah menerapkan migrasi ke Supabase dev/prod; hanya ke Postgres lokal sementara |

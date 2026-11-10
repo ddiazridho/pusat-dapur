@@ -173,6 +173,6 @@ Alur migrasi: buat migrasi di lokal (`pnpm db:migrate:local`) → terapkan ke de
 | `lint`, `typecheck` | ESLint, `tsc --noEmit` |
 | `test`, `test:int`, `test:http`, `test:e2e` | Vitest unit, Vitest integrasi, Vitest HTTP, Playwright |
 | `db:local` | `supabase start` |
-| `db:migrate:local` | `prisma migrate dev` terhadap Postgres lokal saja (`DATABASE_URL` lokal) |
+| `db:migrate:local` | Membuat/menerapkan migrasi terhadap Postgres lokal saja (URL lokal dikunci di `scripts/prisma-env.mjs`; shadow `prisma_shadow` + `migrate diff` + `migrate deploy`, lihat `data-model.md` → Migrasi) |
 | `db:deploy:dev` | `prisma migrate deploy` dengan `DIRECT_URL` Supabase dev (`.env.dev`, tidak di-commit) |
 | `seed:dev`, `seed:demo` | Skrip seed |
