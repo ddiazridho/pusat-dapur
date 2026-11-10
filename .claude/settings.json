@@ -15,7 +15,8 @@
       "Bash(gh issue comment*)",
       "Bash(gh pr view*)",
       "Bash(gh pr checks*)",
-      "Bash(git worktree list*)"
+      "Bash(git worktree list*)",
+      "Bash(gh pr merge*)"
     ],
     "ask": [
       "Bash(git push*)",
@@ -59,8 +60,7 @@
       "Bash(git push origin HEAD:main*)",
       "Bash(git push * main)",
       "Bash(git push * HEAD:main)",
-      "Bash(git push * *:main)",
-      "Bash(gh pr merge*)"
+      "Bash(git push * *:main)"
     ]
   }
 }

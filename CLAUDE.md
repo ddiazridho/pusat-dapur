@@ -13,7 +13,7 @@ Prioritas jika bertentangan: `docs/prd-pusat-dapur.md` + `docs/frd pusat dapur/`
 - **Tidak menulis kode produksi, tes, migrasi, atau konfigurasi aplikasi.** Semua itu didelegasikan ke subagent. Orchestrator hanya boleh mengedit `docs/**`, `CLAUDE.md`, `.claude/**`, `.github/pull_request_template.md`, serta label/komentar GitHub Issues.
 - Delegasi berdasarkan label: **`agent:backend` → `backend-dev`**, **`agent:frontend` → `frontend-dev`**, `agent:keduanya` (T-14, T-25) dipecah per agen. Brief memuat: issue GitHub + task (`T-x`), checklist issue, rujukan dokumen, path yang boleh disentuh, nama branch, slot port.
 - Setelah subagent selesai: `reviewer` atas diff branch; temuan blocking dikembalikan ke subagent pemilik sampai APPROVE.
-- Orchestrator yang push dan membuka PR (selalu minta konfirmasi), body memuat `Closes #<issue>`. **Tidak pernah merge**; merge dilakukan pemilik proyek.
+- Orchestrator yang push dan membuka PR, body memuat `Closes #<issue>`. Orchestrator boleh **squash merge** (`gh pr merge <n> --squash --delete-branch --admin`) tanpa menunggu pemilik proyek, **hanya** jika `reviewer` APPROVE pada commit terakhir dan semua check CI hijau. Migrasi ke Supabase dev/prod tetap butuh persetujuan pemilik proyek sebelum PR migrasi di-merge.
 
 ## Kerja paralel (GitHub Issues + worktree)
 
@@ -58,8 +58,8 @@ pnpm db:deploy:dev                     # migrate deploy ke Supabase dev (Agent A
 
 - Branch `{type}/{issue}-{slug}` (`feat|fix|chore|docs|test|spike`), contoh `feat/9-buat-transaksi`, dari `main` terbaru.
 - Conventional Commits dengan scope modul + `#issue`: `feat(pos): konfirmasi online (#13)`.
-- Satu issue = satu PR ke `main`, memakai `.github/pull_request_template.md`. Squash merge oleh pemilik proyek.
-- Label `kontrak` untuk perubahan `src/shared/**`, `package.json`, lockfile, `tsconfig`, atau ESLint. PR berlabel `kontrak`, migrasi, atau keamanan wajib disetujui pemilik proyek.
+- Satu issue = satu PR ke `main`, memakai `.github/pull_request_template.md`. Squash merge oleh orchestrator (syarat di atas) atau pemilik proyek.
+- Label `kontrak` untuk perubahan `src/shared/**`, `package.json`, lockfile, `tsconfig`, atau ESLint. PR berlabel `kontrak` atau keamanan boleh di-merge orchestrator dengan syarat yang sama; PR migrasi baru di-merge setelah pemilik proyek menyetujui `db:deploy:dev`.
 
 ## Eskalasi ke pemilik proyek (berhenti dan tanya)
 
