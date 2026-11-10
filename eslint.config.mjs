@@ -1,9 +1,17 @@
+import { createRequire } from 'node:module';
 import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { FlatCompat } from '@eslint/eslintrc';
 import boundaries from 'eslint-plugin-boundaries';
 
-const compat = new FlatCompat({ baseDirectory: dirname(fileURLToPath(import.meta.url)) });
+const require = createRequire(import.meta.url);
+
+// pnpm 10 tidak lagi mengangkat plugin ESLint ke root node_modules; plugin bawaan
+// eslint-config-next di-resolve dari folder paket itu sendiri.
+const compat = new FlatCompat({
+  baseDirectory: dirname(fileURLToPath(import.meta.url)),
+  resolvePluginsRelativeTo: dirname(require.resolve('eslint-config-next/package.json')),
+});
 
 // Aturan layering: docs/architecture/struktur-kode.md → Aturan Layering.
 // Urutan elemen penting: pola pertama yang cocok menentukan tipe file.
