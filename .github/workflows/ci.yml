@@ -1,0 +1,78 @@
+# Gate PR minimum: lint + typecheck + test. Langkah lanjutan (test:http, E2E, bundle budget)
+# ditambahkan Agent A sesuai docs/tasks.md → PR Gate. Langkah yang prasyaratnya belum ada
+# dilewati, sehingga CI tetap hijau sebelum scaffold proyek (#1a) dan skema (#2).
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    name: Lint, typecheck, test
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deteksi tahap proyek
+        id: tahap
+        run: |
+          echo "app=$([ -f package.json ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+          echo "db=$([ -f prisma/schema.prisma ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+
+      - name: Belum ada package.json (sebelum #1a)
+        if: steps.tahap.outputs.app != 'true'
+        run: echo "Scaffold aplikasi belum ada; lint & test dilewati."
+
+      - uses: pnpm/action-setup@v4
+        if: steps.tahap.outputs.app == 'true'
+
+      - uses: actions/setup-node@v4
+        if: steps.tahap.outputs.app == 'true'
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install
+        if: steps.tahap.outputs.app == 'true'
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        if: steps.tahap.outputs.app == 'true'
+        run: pnpm lint
+
+      - name: Typecheck
+        if: steps.tahap.outputs.app == 'true'
+        run: pnpm typecheck
+
+      - name: Unit test
+        if: steps.tahap.outputs.app == 'true'
+        run: pnpm test
+
+      - name: Supabase lokal (Postgres, Auth)
+        if: steps.tahap.outputs.db == 'true'
+        run: pnpm exec supabase start
+
+      - name: Migrasi ke Postgres lokal
+        if: steps.tahap.outputs.db == 'true'
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:54322/postgres
+          DIRECT_URL: postgresql://postgres:postgres@127.0.0.1:54322/postgres
+        run: pnpm exec prisma migrate deploy
+
+      - name: Integration test
+        if: steps.tahap.outputs.db == 'true'
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:54322/postgres
+          DIRECT_URL: postgresql://postgres:postgres@127.0.0.1:54322/postgres
+        run: pnpm test:int

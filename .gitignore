@@ -1,0 +1,41 @@
+# Dependensi & build
+node_modules/
+.pnpm-store/
+.next/
+out/
+build/
+dist/
+*.tsbuildinfo
+next-env.d.ts
+
+# Service Worker hasil build (Serwist)
+public/sw.js
+public/sw.js.map
+public/swe-worker-*.js
+
+# Env: rahasia tidak pernah di-commit; hanya .env.example
+.env
+.env.*
+!.env.example
+
+# Supabase CLI lokal
+supabase/.branches/
+supabase/.temp/
+
+# Tes & laporan
+coverage/
+playwright-report/
+test-results/
+blob-report/
+.lighthouseci/
+
+# Vercel
+.vercel/
+
+# Claude Code lokal (pengaturan personal)
+.claude/settings.local.json
+
+# OS & editor
+.DS_Store
+Thumbs.db
+*.log
