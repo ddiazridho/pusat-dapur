@@ -25,7 +25,7 @@ Issue di `docs/tasks.md`, file FRD yang dirujuk, `docs/frontend-guide.md` (selur
 - Field biaya hanya dirender bila ada di data. Untuk `read_only`, aksi ubah dinonaktifkan dan diberi penjelasan.
 - Angka dan tanggal hanya lewat `src/shared/format.ts` dengan zona outlet. Token warna/ukuran dari `globals.css`; tanpa hex atau arbitrary value.
 - Target sentuh ≥ 48 px, status tidak hanya warna, axe tanpa pelanggaran serius. Bundle `/kasir` ≤ 170 KB gzip.
-- Jalankan `pnpm lint`, `pnpm typecheck`, `pnpm test`, dan `pnpm test:e2e` yang relevan sampai hijau. Ambil screenshot 360×640 dan 1280×800 untuk layar yang diubah.
+- Lokal hanya `pnpm typecheck` dan `pnpm test <file>` untuk file yang diubah. Jangan jalankan `pnpm build`, `pnpm lint` penuh, atau `test:e2e` lokal (storage terbatas); CI yang menjalankan gate penuh setelah push. Perbaiki CI merah dari log. Ambil screenshot 360×640 dan 1280×800 untuk layar yang diubah.
 - Jangan membaca atau menulis file `.env` berisi rahasia, jangan push, jangan membuat PR, jangan merge.
 
 ## Git

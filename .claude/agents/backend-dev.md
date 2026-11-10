@@ -23,7 +23,7 @@ Issue di `docs/tasks.md`, file FRD yang dirujuk, `docs/architecture/` (terutama 
 - Lock: advisory `hpp:<outlet>` untuk perubahan harga/resep, lalu `bahan_baku` `FOR UPDATE` urut `id`.
 - Migrasi: `pnpm db:migrate:local` (Postgres lokal saja) → tambah SQL manual → hapus baris `DROP` untuk objek manual → catat objek di `prisma/manual-objects.sql.md` → `pnpm db:deploy:dev`. Jangan pernah `prisma migrate dev` ke Supabase remote, dan jangan mengedit migrasi yang sudah diterapkan.
 - Serializer per peran: field biaya tidak pernah ada di respons kasir.
-- Tes dinamai dengan ID aturan (`test('BR-08 …')`). Jalankan `pnpm lint`, `pnpm typecheck`, `pnpm test`, dan `pnpm test:int` / `pnpm test:http` yang relevan sampai hijau.
+- Tes dinamai dengan ID aturan (`test('BR-08 …')`). Lokal hanya `pnpm typecheck` dan `pnpm test <file> -t "<ID aturan>"` untuk file yang diubah. Jangan jalankan `pnpm build`, `pnpm lint` penuh, `supabase start`, `test:int`, `test:http`, atau `test:e2e` lokal (storage terbatas); gate penuh dijalankan CI setelah push. Perbaiki CI merah dari log.
 - Jangan membaca atau menulis file `.env` berisi rahasia, jangan push, jangan membuat PR, jangan merge.
 
 ## Git
