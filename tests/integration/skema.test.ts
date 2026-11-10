@@ -38,15 +38,15 @@ async function ada({ jenis, nama, tabel }: Objek): Promise<boolean> {
 afterAll(() => prisma.$disconnect());
 
 describe('skema', () => {
-  test('manual-objects.sql.md terbaca', () => {
+  test('NFR-05 manual-objects.sql.md terbaca', () => {
     expect(daftar.length).toBeGreaterThan(60);
   });
 
-  test.each(daftar)('objek manual $jenis $nama ($tabel) ada', async (o) => {
+  test.each(daftar)('NFR-05 objek manual $jenis $nama ($tabel) ada', async (o) => {
     expect(await ada(o)).toBe(true);
   });
 
-  test('14 tabel bisnis ada dan RLS aktif di semuanya', async () => {
+  test('NFR-01 NFR-05 14 tabel bisnis ada dan RLS aktif di semuanya', async () => {
     const tabel = await prisma.$queryRaw<{ relname: string; relrowsecurity: boolean }[]>`
       SELECT c.relname, c.relrowsecurity FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace
       WHERE n.nspname = 'public' AND c.relkind = 'r' AND c.relname <> '_prisma_migrations'`;
@@ -75,7 +75,7 @@ describe('skema', () => {
       expect(await ada({ jenis: 'index', nama: nama!, tabel: tabel! }), nama).toBe(true);
   });
 
-  test('stok_mutasi.seq bigint autoincrement unik', async () => {
+  test('NFR-01 stok_mutasi.seq bigint autoincrement unik', async () => {
     const [kolom] = await prisma.$queryRaw<{ data_type: string; column_default: string }[]>`
       SELECT data_type, column_default FROM information_schema.columns
       WHERE table_schema = 'public' AND table_name = 'stok_mutasi' AND column_name = 'seq'`;
@@ -83,13 +83,13 @@ describe('skema', () => {
     expect(kolom!.column_default).toMatch(/^nextval\(/);
   });
 
-  test('publication supabase_realtime hanya berisi stok_alert', async () => {
+  test('NFR-05 publication supabase_realtime hanya berisi stok_alert', async () => {
     const isi = await prisma.$queryRaw<{ tablename: string }[]>`
       SELECT tablename FROM pg_publication_tables WHERE pubname = 'supabase_realtime'`;
     expect(isi.map((t) => t.tablename)).toEqual(['stok_alert']);
   });
 
-  test('prisma validate lulus', () => {
+  test('NFR-05 prisma validate lulus', () => {
     execFileSync('pnpm', ['exec', 'prisma', 'validate'], {
       env: { ...process.env, DATABASE_URL: URL_LOKAL, DIRECT_URL: URL_LOKAL },
       shell: process.platform === 'win32',

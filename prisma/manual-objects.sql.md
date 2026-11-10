@@ -11,7 +11,7 @@ setelah `migrate deploy` dari nol. Kolom `Jenis`: `constraint` (`pg_constraint`)
 (`pg_proc`, `Tabel` = schema), `rls` (`relrowsecurity`), `publication` (`pg_publication_tables`,
 `Nama` = publication).
 
-Catatan: `users_id_auth_fkey` tidak dibuat di shadow DB `prisma migrate dev` (tanpa schema
+Catatan: `users_id_auth_fkey` tidak dibuat di shadow DB `prisma_shadow` (`db:migrate:local`, tanpa schema
 `auth`); di Supabase lokal/CI/dev/prod selalu ada.
 
 | Jenis       | Nama                             | Tabel              | Migrasi                   |
