@@ -19,8 +19,9 @@ Prioritas jika bertentangan: `docs/prd-pusat-dapur.md` + `docs/frd pusat dapur/`
 
 - Papan kerja = GitHub Issues. Judul `[T-x]` = task `docs/tasks.md`; `[Hx]` = aksi manusia (label `manusia`). Nomor issue GitHub ≠ nomor task: branch memakai nomor task (`feat/9-…`), PR memakai `Closes #<nomor issue>`.
 - Siklus: ambil `gh issue list -R ddiazridho/pusat-dapur --label status:siap` → ganti label ke `status:dikerjakan` → jalankan subagent dengan `isolation: "worktree"` → PR → `status:review`. Setelah issue tertutup (merge), cek issue `status:terblokir` yang semua "Bergantung pada"-nya sudah tertutup, lalu ubah ke `status:siap`.
-- Maksimal **3 subagent paralel**, dan tidak boleh ada dua issue paralel yang menyentuh file yang sama. Perubahan file bersama (`kontrak`) dikerjakan serial.
-- Resource bersama di mesin ini: **hanya satu subagent pada satu waktu** yang boleh `supabase start` / `test:int` / `test:http` (port Supabase lokal tetap). Server Next per worktree memakai `PORT=3100+slot` (slot 0–2 dari brief).
+- Subagent dijalankan lewat MCP `better-opencode` (`opencode` tool, `agent: "build"`, satu task per worktree; pantau `opencode_sessions`). Maksimal **5 paralel** (`maxConcurrent`), dan tidak boleh ada dua issue paralel yang menyentuh file yang sama. Perubahan file bersama (`kontrak`) dikerjakan serial.
+- Mode hemat storage: build, lint penuh, `supabase start`, `test:int`, `test:http`, `test:e2e` **tidak dijalankan lokal**; hanya CI GitHub. Lokal: `pnpm typecheck` + test file terkait. Orchestrator merge hanya setelah CI hijau.
+- (Jika suatu saat Supabase lokal dipakai lagi: hanya satu subagent pada satu waktu untuk `supabase start` / `test:int` / `test:http`, port tetap.) Server Next per worktree memakai `PORT=3100+slot` (slot 0–2 dari brief).
 - Worktree tidak berisi file `.env*` lokal. Subagent yang butuh kredensial (T-1a) diberi path absolut file di checkout utama, dan nilainya tidak boleh ditampilkan.
 - Prasyarat paralel: Docker Desktop berjalan (Supabase lokal).
 
