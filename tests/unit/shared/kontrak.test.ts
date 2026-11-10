@@ -187,7 +187,7 @@ describe('batas nilai FRD', () => {
     expect(gagal(s.ubahKasirSchema, { username: 'baru' }).detail).toHaveProperty('username');
   });
 
-  test('US-11 pengaturan-outlet.md & alert-stok.md: onboarding & sudah_dibaca hanya true; ambang 0–100', () => {
+  test('US-01 US-10 US-11 pengaturan-outlet.md & alert-stok.md: onboarding & sudah_dibaca hanya true; ambang 0–100', () => {
     expect(gagal(s.ubahPengaturanSchema, { onboarding_selesai: false }).detail).toHaveProperty('onboarding_selesai');
     expect(gagal(s.ubahPengaturanSchema, { ambang_margin: 101 }).detail).toHaveProperty('ambang_margin');
     expect(gagal(s.ubahPengaturanSchema, { zona_waktu: 'Asia/Singapore' }).detail).toHaveProperty('zona_waktu');

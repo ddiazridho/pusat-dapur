@@ -83,7 +83,7 @@ describe('NFR-01 batas hari 3 zona (waktu.ts)', () => {
   });
 });
 
-describe('US-08 nomor struk (struk.md)', () => {
+describe('US-05 nomor struk (struk.md)', () => {
   test('format YYMMDD-XXXXXX-NNN dari tanggal zona outlet + device_id', () => {
     const deviceId = '3fa9c2d1-0b4e-4c8a-9f21-6a7d5e0c1b2a';
     expect(buatNomorStruk({ waktu: '2026-11-10T05:45:00Z', tz: 'Asia/Jakarta', deviceId, urutan: 14 })).toBe('261110-3FA9C2-014');
