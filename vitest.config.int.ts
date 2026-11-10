@@ -12,7 +12,8 @@ export default defineConfig({
     },
   },
   test: {
-    include: ['tests/{integration,http}/**/*.test.ts'],
+    // Relatif terhadap `--dir` skrip (tests/integration atau tests/http).
+    include: ['**/*.test.ts'],
     environment: 'node',
     fileParallelism: false,
     testTimeout: 30_000,
