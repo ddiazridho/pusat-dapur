@@ -24,8 +24,10 @@
     "db:deploy:dev": "node scripts/prisma-env.mjs dev migrate deploy"
   },
   "dependencies": {
+    "@date-fns/tz": "^1.5.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "date-fns": "^4.4.0",
     "lucide-react": "^1.71.0",
     "next": "^15.5.29",
     "react": "^19.2.0",
