@@ -2,13 +2,13 @@
 
 ## Topologi Lingkungan
 
-Satu repository, satu Vercel project, **dua** Supabase project. Kode identik; yang berbeda hanya environment variable.
+Satu repository, satu Vercel project, **dua** Supabase project, **satu** database Upstash (khusus Production; plan Free Upstash hanya mengizinkan 1 database per akun). Kode identik; yang berbeda hanya environment variable.
 
 | Lingkungan | Pemicu | Supabase | Upstash | Data |
 |---|---|---|---|---|
 | Lokal & CI | `pnpm dev`, tes | **Supabase CLI lokal** (`supabase start`) | Tidak ada (limiter & cache laporan nonaktif, lihat bawah) | Data uji (`seed:dev`) + demo (`seed:demo`) |
-| Preview | Push branch / PR | `dev` | DB `dev` | Data uji + demo |
-| Production | Merge ke `main` | `prod` | DB `prod` | Pengguna nyata + outlet demo juri |
+| Preview | Push branch / PR | `dev` | Tidak ada (sama dengan lokal/CI) | Data uji + demo |
+| Production | Merge ke `main` | `prod` | DB `pusat-dapur-prod` | Pengguna nyata + outlet demo juri |
 
 - Supabase `dev` hanya dipakai Preview (dan `db:deploy:dev`); pengembangan & tes tidak pernah memakai DB remote.
 - Domain produksi: `https://pusat-dapur.vercel.app` (domain `*.vercel.app` gratis, sesuai NFR-10). Jika nama project tidak tersedia, gunakan domain produksi `*.vercel.app` yang diberikan Vercel dan isi nilainya di `APP_URL`, Site URL Supabase, dan `docs/architecture/auth-akses.md`. Domain kustom adalah langkah pasca-kompetisi (cukup ubah env & konfigurasi, tanpa ubah kode).
@@ -25,7 +25,7 @@ Satu repository, satu Vercel project, **dua** Supabase project. Kode identik; ya
 | `SUPABASE_SECRET_KEY` | server | **Ya** | Service role/secret key (Admin API Auth & Storage) |
 | `DATABASE_URL` | server | Ya | Supavisor transaction pooler `:6543` + `?pgbouncer=true&connection_limit=1` |
 | `DIRECT_URL` | migrasi/CI | Ya | Session pooler/direct `:5432` |
-| `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` | server + edge | Ya | Wajib bila `VERCEL_ENV` ∈ {`preview`, `production`}; kosong di lokal/CI → limiter fail-open, cache laporan dilewati (hitung langsung), gate materialisasi dilewati (advisory lock tetap melindungi) |
+| `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` | server + edge | Ya | Wajib **hanya** bila `VERCEL_ENV = production`. Tidak diisi di Preview, lokal, dan CI → limiter fail-open, cache laporan dilewati (hitung langsung), gate materialisasi dilewati (advisory lock tetap melindungi) |
 | `APP_URL` | server + edge | Tidak | Production: `https://pusat-dapur.vercel.app`; lokal: `http://localhost:3000` |
 | `APP_ORIGINS` (turunan, bukan env) | server + edge | — | Dihitung di `env.ts`: Production = [`APP_URL`]; Preview = [`https://${VERCEL_URL}`, `https://${VERCEL_BRANCH_URL}`]; lokal = [`APP_URL`] |
 | `CRON_SECRET` | server | Ya | Dipakai Vercel Cron & route cron (Vercel mengirim `Authorization: Bearer <CRON_SECRET>` otomatis) |
@@ -91,6 +91,8 @@ SMTP bawaan Supabase hanya untuk uji coba (kuota sangat kecil, terbatas ke alama
 | Pasca-kompetisi | Saat punya domain kustom: autentikasi domain di Brevo (SPF/DKIM), ganti alamat pengirim; tanpa perubahan kode |
 
 ## Upstash Redis
+
+Satu database `pusat-dapur-prod` (AWS ap-southeast-1, TLS), dipakai Production saja. Preview tidak memakai Redis, sehingga perilaku rate limit dan cache hanya diverifikasi lewat unit test (Redis tiruan) dan smoke di Production (`struktur-kode.md` → Strategi Testing).
 
 | Pemakaian | Key | Detail |
 |---|---|---|
