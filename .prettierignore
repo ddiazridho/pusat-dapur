@@ -1,0 +1,6 @@
+docs/
+.claude/
+CLAUDE.md
+pnpm-lock.yaml
+supabase/
+.next/
