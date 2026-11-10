@@ -112,8 +112,10 @@ Semua dependensi memakai rentang **dalam satu versi mayor** (`^`), dikunci oleh 
 | `date-fns` / `@date-fns/tz` | `^4` / `^1` | |
 | `recharts` | `^3` | |
 | `lucide-react`, `sonner` | minor terbaru saat #1b, lalu dikunci lockfile | |
+| `clsx` / `tailwind-merge` / `class-variance-authority` | `^2` / `^3` / `^0` (minor terbaru saat #1b, lalu dikunci lockfile) | Utilitas komponen shadcn (`cn()` di `src/components/ui/utils.ts`) |
 | `jose` | `^6` | Hanya bila jalur cadangan `getClaims()` dipakai |
 | `vitest`, `@testing-library/react`, `fake-indexeddb` | `^3`, `^16`, `^6` | |
+| `@testing-library/dom`, `@testing-library/jest-dom`, `jsdom` | `^10`, `^7`, `^31` | Peer RTL 16 dan environment Vitest project `dom` |
 | `@playwright/test`, `@axe-core/playwright` | `^1`, `^4` | |
 | Supabase CLI | `^2` (dev dependency `supabase`) | |
 | `eslint` / `@eslint/eslintrc` | `^9` / `^3` | ESLint 9 karena peer `eslint-config-next@15`; FlatCompat |
