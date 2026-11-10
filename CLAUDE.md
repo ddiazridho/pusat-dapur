@@ -10,12 +10,19 @@ Prioritas jika bertentangan: `docs/prd-pusat-dapur.md` + `docs/frd pusat dapur/`
 
 ## Peran orchestrator
 
-- **Tidak menulis kode produksi, tes, migrasi, atau konfigurasi aplikasi.** Semua itu didelegasikan ke subagent. Orchestrator hanya boleh mengedit `docs/**`, `CLAUDE.md`, `.claude/**`, dan `.github/pull_request_template.md`.
-- Ambil issue berikutnya dari `docs/tasks.md` sesuai nomor (sufiks `a` sebelum `b`). Pastikan semua dependensi sudah merge dan aksi manusia (H*) yang disyaratkan sudah selesai.
-- Delegasi berdasarkan kolom Owner: **A → `backend-dev`**, **B → `frontend-dev`**. Issue A+B (#14, #25) dipecah menjadi tugas terpisah per agen. Issue `a` dan `b` yang tidak saling bergantung boleh berjalan paralel.
-- Brief ke subagent memuat: nomor issue, checklist issue, rujukan FRD/architecture/design, path yang boleh disentuh, dan nama branch.
-- Setelah subagent selesai: jalankan `reviewer` atas diff branch. Temuan blocking dikembalikan ke subagent pemilik, lalu di-review ulang sampai APPROVE.
-- Orchestrator yang push dan membuka PR (keduanya selalu minta konfirmasi). **Tidak pernah merge**; merge dilakukan pemilik proyek.
+- **Tidak menulis kode produksi, tes, migrasi, atau konfigurasi aplikasi.** Semua itu didelegasikan ke subagent. Orchestrator hanya boleh mengedit `docs/**`, `CLAUDE.md`, `.claude/**`, `.github/pull_request_template.md`, serta label/komentar GitHub Issues.
+- Delegasi berdasarkan label: **`agent:backend` → `backend-dev`**, **`agent:frontend` → `frontend-dev`**, `agent:keduanya` (T-14, T-25) dipecah per agen. Brief memuat: issue GitHub + task (`T-x`), checklist issue, rujukan dokumen, path yang boleh disentuh, nama branch, slot port.
+- Setelah subagent selesai: `reviewer` atas diff branch; temuan blocking dikembalikan ke subagent pemilik sampai APPROVE.
+- Orchestrator yang push dan membuka PR (selalu minta konfirmasi), body memuat `Closes #<issue>`. **Tidak pernah merge**; merge dilakukan pemilik proyek.
+
+## Kerja paralel (GitHub Issues + worktree)
+
+- Papan kerja = GitHub Issues. Judul `[T-x]` = task `docs/tasks.md`; `[Hx]` = aksi manusia (label `manusia`). Nomor issue GitHub ≠ nomor task: branch memakai nomor task (`feat/9-…`), PR memakai `Closes #<nomor issue>`.
+- Siklus: ambil `gh issue list -R ddiazridho/pusat-dapur --label status:siap` → ganti label ke `status:dikerjakan` → jalankan subagent dengan `isolation: "worktree"` → PR → `status:review`. Setelah issue tertutup (merge), cek issue `status:terblokir` yang semua "Bergantung pada"-nya sudah tertutup, lalu ubah ke `status:siap`.
+- Maksimal **3 subagent paralel**, dan tidak boleh ada dua issue paralel yang menyentuh file yang sama. Perubahan file bersama (`kontrak`) dikerjakan serial.
+- Resource bersama di mesin ini: **hanya satu subagent pada satu waktu** yang boleh `supabase start` / `test:int` / `test:http` (port Supabase lokal tetap). Server Next per worktree memakai `PORT=3100+slot` (slot 0–2 dari brief).
+- Worktree tidak berisi file `.env*` lokal. Subagent yang butuh kredensial (T-1a) diberi path absolut file di checkout utama, dan nilainya tidak boleh ditampilkan.
+- Prasyarat paralel: Docker Desktop berjalan (Supabase lokal).
 
 ## Perintah (tersedia setelah issue #1a)
 
