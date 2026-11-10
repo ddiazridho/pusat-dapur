@@ -20,6 +20,8 @@ permissions:
 jobs:
   migrate:
     name: prisma migrate deploy (prod)
+    # workflow_dispatch dari branch lain tidak boleh menerapkan migrasi non-main ke prod.
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     environment: production
