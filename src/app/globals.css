@@ -1,0 +1,113 @@
+@import "tailwindcss";
+
+:root {
+  --radius: 0.75rem;
+
+  --background: #F6F7F5;
+  --foreground: #18201B;
+  --card: #FFFFFF;
+  --card-foreground: #18201B;
+  --popover: #FFFFFF;
+  --popover-foreground: #18201B;
+  --primary: #15803D;
+  --primary-hover: #166534;
+  --primary-foreground: #FFFFFF;
+  --cta: #C2410C;
+  --cta-hover: #9A3412;
+  --cta-foreground: #FFFFFF;
+  --secondary: #EEF2EF;
+  --secondary-foreground: #18201B;
+  --muted: #EEF2EF;
+  --muted-foreground: #5B6660;
+  --accent: #E7EFE9;
+  --accent-foreground: #18201B;
+  --destructive: #B91C1C;
+  --destructive-foreground: #FFFFFF;
+  --border: #DDE3DF;
+  --input: #8C9790;
+  --ring: #15803D;
+
+  --sidebar: #15201A;
+  --sidebar-foreground: #DCE5DF;
+  --sidebar-muted: #93A39A;
+  --sidebar-active: #22332A;
+  --sidebar-indicator: #4ADE80;
+  --table-head: #1E2B24;
+  --table-head-foreground: #FFFFFF;
+
+  --status-aman: #166534;       --status-aman-bg: #DCFCE7;
+  --status-menipis: #92400E;    --status-menipis-bg: #FEF3C7;
+  --status-habis: #991B1B;      --status-habis-bg: #FEE2E2;
+  --status-info: #1E40AF;       --status-info-bg: #DBEAFE;
+  --status-netral: #374151;     --status-netral-bg: #E5E7EB;
+  --status-demo: #5B21B6;       --status-demo-bg: #EDE9FE;
+}
+
+@theme inline {
+  --font-sans: var(--font-inter), system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono: ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --text-display: 2.25rem;
+  --text-display--line-height: 2.5rem;
+
+  --radius-sm: calc(var(--radius) - 6px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+
+  --spacing-touch: 3rem;
+  --spacing-bar: 3.5rem;
+  --spacing-cart-bar: 4rem;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-cta: var(--cta);
+  --color-cta-hover: var(--cta-hover);
+  --color-cta-foreground: var(--cta-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-muted: var(--sidebar-muted);
+  --color-sidebar-active: var(--sidebar-active);
+  --color-sidebar-indicator: var(--sidebar-indicator);
+  --color-table-head: var(--table-head);
+  --color-table-head-foreground: var(--table-head-foreground);
+  --color-status-aman: var(--status-aman);
+  --color-status-aman-bg: var(--status-aman-bg);
+  --color-status-menipis: var(--status-menipis);
+  --color-status-menipis-bg: var(--status-menipis-bg);
+  --color-status-habis: var(--status-habis);
+  --color-status-habis-bg: var(--status-habis-bg);
+  --color-status-info: var(--status-info);
+  --color-status-info-bg: var(--status-info-bg);
+  --color-status-netral: var(--status-netral);
+  --color-status-netral-bg: var(--status-netral-bg);
+  --color-status-demo: var(--status-demo);
+  --color-status-demo-bg: var(--status-demo-bg);
+}
+
+@layer base {
+  * { @apply border-border; }
+  html { -webkit-tap-highlight-color: transparent; }
+  body { @apply bg-background text-foreground font-sans antialiased; }
+  input, select, textarea { font-size: 16px; } /* cegah zoom otomatis di mobile */
+  :focus-visible { @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background; }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  }
+}
