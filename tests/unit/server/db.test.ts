@@ -34,6 +34,20 @@ describe('forOutlet: injeksi outlet_id (NFR-05, auth-akses lapis 1)', () => {
     expect(sisipkanOutlet('Menu', op, undefined, OUTLET)).toEqual({ where: { outlet_id: OUTLET } });
   });
 
+  test.each(['update', 'updateMany', 'updateManyAndReturn'])(
+    'NFR-05 %s menimpa data.outlet_id: baris tidak bisa dipindah ke outlet lain',
+    (op) => {
+      expect(
+        sisipkanOutlet(
+          'Menu',
+          op,
+          { where: { id: 'x' }, data: { nama: 'A', outlet_id: LAIN } },
+          OUTLET,
+        ),
+      ).toEqual({ where: { id: 'x', outlet_id: OUTLET }, data: { nama: 'A', outlet_id: OUTLET } });
+    },
+  );
+
   test('create menambah data.outlet_id dan menimpa nilai pemanggil', () => {
     expect(
       sisipkanOutlet('BahanBaku', 'create', { data: { nama: 'Gula', outlet_id: LAIN } }, OUTLET),

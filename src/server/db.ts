@@ -60,6 +60,9 @@ export function sisipkanOutlet(
   } else {
     // find*, update*, delete*, count, aggregate, groupBy
     hasil.where = { ...(hasil.where as Args | undefined), outlet_id: outletId };
+    // update*: baris tidak boleh dipindah ke outlet lain lewat data.outlet_id.
+    if (operation.startsWith('update') && hasil.data !== undefined)
+      hasil.data = { ...(hasil.data as Args), outlet_id: outletId };
   }
   return hasil;
 }
