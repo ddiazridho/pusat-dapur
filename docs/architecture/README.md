@@ -96,7 +96,7 @@ Semua dependensi memakai rentang **dalam satu versi mayor** (`^`), dikunci oleh 
 | Paket | Versi | Catatan |
 |---|---|---|
 | Node.js | 22 LTS (`engines.node: ">=22 <23"`, `.nvmrc`) | |
-| pnpm | 10 (`packageManager: "pnpm@10"` di `package.json`) | |
+| pnpm | 10 (`packageManager: "pnpm@10.34.9"` di `package.json`) | Corepack & `pnpm/action-setup` butuh versi persis; tetap mayor 10 |
 | `next` / `eslint-config-next` | `^15` | Tidak naik ke 16 (API `middleware.ts` dipakai di dokumen) |
 | `react`, `react-dom` | `^19` | |
 | `typescript` | `^5` | |
@@ -116,6 +116,11 @@ Semua dependensi memakai rentang **dalam satu versi mayor** (`^`), dikunci oleh 
 | `vitest`, `@testing-library/react`, `fake-indexeddb` | `^3`, `^16`, `^6` | |
 | `@playwright/test`, `@axe-core/playwright` | `^1`, `^4` | |
 | Supabase CLI | `^2` (dev dependency `supabase`) | |
+| `eslint` / `@eslint/eslintrc` | `^9` / `^3` | ESLint 9 karena peer `eslint-config-next@15`; FlatCompat |
+| `eslint-plugin-boundaries` | `^5` | Aturan layering (`struktur-kode.md`) |
+| `prettier` | `^3` | |
+| `server-only` | minor terbaru saat #1a, lalu dikunci lockfile | |
+| `@types/node` / `@types/react`, `@types/react-dom` | `^22` / `^19` | |
 
 ## Prinsip Arsitektur
 

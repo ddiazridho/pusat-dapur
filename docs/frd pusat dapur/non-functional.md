@@ -93,7 +93,7 @@ Perilaku detail di `offline-sync.md`.
 
 Rate limit dijalankan di middleware untuk semua route di tabel ini, termasuk route publik yang melewati cek sesi (`auth.md`).
 
-Login dan email reset kata sandi memakai rate limit bawaan Supabase Auth (dikonfigurasi maks 3 email reset/jam per email).
+Login dan email reset kata sandi memakai rate limit bawaan Supabase Auth. Batas kirim email baru bisa diubah setelah SMTP kustom terpasang: prod (Brevo, H5/#14) dikonfigurasi maks 3 email/jam, dihitung per project (bukan per alamat email); dev memakai bawaan Supabase, 2 email/jam.
 
 ## NFR-05: Integritas Data
 

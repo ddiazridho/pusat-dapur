@@ -1,6 +1,7 @@
-# Gate PR minimum: lint + typecheck + test. Langkah lanjutan (test:http, E2E, bundle budget)
-# ditambahkan Agent A sesuai docs/tasks.md → PR Gate. Langkah yang prasyaratnya belum ada
-# dilewati, sehingga CI tetap hijau sebelum scaffold proyek (#1a) dan skema (#2).
+# Gate PR (docs/tasks.md → PR Gate). Aktif sejak #1a: lint, typecheck, unit, build.
+# Integrasi (supabase start + migrate deploy + test:int) otomatis aktif begitu
+# prisma/schema.prisma ada (#2). Langkah lanjutan (test:http #4, E2E #5, bundle budget #13)
+# ditambahkan Agent A pada issue terkait. CI tidak pernah menyentuh Supabase dev/prod.
 name: CI
 
 on:
@@ -21,6 +22,8 @@ jobs:
     name: Lint, typecheck, test
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    env:
+      NEXT_TELEMETRY_DISABLED: '1'
     steps:
       - uses: actions/checkout@v4
 
@@ -76,3 +79,15 @@ jobs:
           DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:54322/postgres
           DIRECT_URL: postgresql://postgres:postgres@127.0.0.1:54322/postgres
         run: pnpm test:int
+
+      # Nilai placeholder non-rahasia (Supabase CLI lokal) agar validasi env di next.config.ts
+      # lolos; build tidak menghubungi database maupun Supabase.
+      - name: Build
+        if: steps.tahap.outputs.app == 'true'
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:54321
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ci-placeholder
+          SUPABASE_SECRET_KEY: ci-placeholder
+          DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:54322/postgres
+          APP_URL: http://localhost:3000
+        run: pnpm build

@@ -73,7 +73,7 @@ Login, logout, dan reset memakai `@supabase/ssr` (`signInWithPassword`, `signOut
 | Aspek | Aturan |
 |---|---|
 | Access token | JWT Supabase, masa berlaku 1 jam, diperbarui otomatis dengan refresh token |
-| Refresh token | Rotasi aktif; sesi berakhir jika tidak dipakai 30 hari |
+| Refresh token | Rotasi aktif. Tanpa batas idle: "inactivity timeout" Supabase hanya ada di paket Pro, sedangkan proyek memakai paket Free (NFR-10). Sesi tetap dapat dicabut server (`akun-kasir.md`, revokasi di `auth-akses.md`) |
 | Offline | Sesi yang kedaluwarsa saat offline, atau request transaksi yang mendapat 401, tidak menghentikan POS: transaksi masuk antrean dan dikirim setelah login ulang (`pos.md`, `offline-sync.md`) |
 | Perubahan `app_metadata` | Server memanggil refresh sesi pengguna terkait; akun dinonaktifkan dicabut sesinya (`akun-kasir.md`) |
 | Logout | Diblokir di UI selama perangkat masih punya item `pending` atau item `gagal` dengan `dilaporkan = false` (`offline-sync.md`) |

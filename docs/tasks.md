@@ -176,7 +176,7 @@ Rujukan: architecture `README.md` (Stack, Versi Dikunci), `infra-operasional.md`
 - [ ] Vitest unit (`vitest.config.ts`) + integrasi (`vitest.config.int.ts`).
 - [ ] `src/server/env.ts` & `src/shared/env-public.ts` (Zod, aturan wajib per `VERCEL_ENV`, `APP_ORIGINS` turunan); `.env.example`.
 - [ ] `vercel.json` (`regions: ["sin1"]`); env Production → Supabase prod + Upstash `pusat-dapur-prod`, Preview → Supabase dev tanpa Upstash; `APP_URL` prod.
-- [ ] Supabase dev & prod dikonfigurasi sesuai `auth-akses.md` → Supabase: Konfigurasi Wajib (Data API off, signup off, confirm email off, JWT asimetris 3600 s, refresh rotation, inactivity 30 hari, rate limit email reset 3/jam, Site URL/redirect).
+- [ ] Supabase dev & prod dikonfigurasi sesuai `auth-akses.md` → Supabase: Konfigurasi Wajib (Data API off, signup off, confirm email off, JWT asimetris 3600 s, refresh rotation, Site URL/redirect). Paket Free: inactivity timeout tidak diatur; rate limit email prod 3/jam diatur di #14 setelah SMTP (`audit-report.md` → Keputusan atas Pertanyaan #9).
 - [ ] `supabase/` config CLI; skrip `package.json` sesuai `struktur-kode.md`.
 - [ ] Perluas `.github/workflows/ci.yml` yang sudah ada (kerangka setup repo: lint, typecheck, unit, integrasi bersyarat) sesuai gate yang aktif sejak #1a; isi `.github/pull_request_template.md` sudah tersedia.
 - [ ] Halaman placeholder `/` ter-deploy di Preview dan prod.
@@ -324,7 +324,7 @@ Rujukan: design `layar-kasir.md` §1–5, §8 (state online), `layar-publik-auth
 - [ ] E2E (lokal & Preview): daftar → onboarding → tambah kasir → kasir login (username) → transaksi tunai & QRIS → stok berkurang → belanja bahan → HPP berubah → transaksi baru memakai HPP baru, transaksi lama tetap (BR-04).
 - [ ] Suite isolasi `tests/http`: semua endpoint dengan ID outlet lain → 404/403 (US-16).
 - [ ] E2E smoke Preview aktif di CI (bypass proteksi).
-- [ ] `migrate-prod.yml` dijalankan; prod ter-deploy; SMTP Brevo terpasang (reset kata sandi diuji); UptimeRobot aktif; smoke test manual di HP Android RAM 2–3 GB.
+- [ ] `migrate-prod.yml` dijalankan; prod ter-deploy; SMTP Brevo terpasang (reset kata sandi diuji) dan rate limit email Supabase prod diatur 3/jam; UptimeRobot aktif; smoke test manual di HP Android RAM 2–3 GB.
 
 ---
 
