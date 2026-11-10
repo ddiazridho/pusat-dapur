@@ -134,7 +134,7 @@ describe('NFR-05 constraint integritas', () => {
     ).toContain('append-only');
   });
 
-  test('akun-demo: reset demo boleh menghapus mutasi outlet is_demo saja', async () => {
+  test('NFR-05 akun-demo: reset demo boleh menghapus mutasi outlet is_demo saja', async () => {
     await dalamRollback(async (tx) => {
       const demo = await buatOutlet(tx, { isDemo: true });
       await tx.stokMutasi.create({
@@ -304,7 +304,7 @@ describe('NFR-05 constraint integritas', () => {
     expect(pesan).toMatch(/client_tx_id/);
   });
 
-  test('CHECK tanda mutasi per jenis, satu pemilik per outlet, username hanya kasir', async () => {
+  test('NFR-05 CHECK tanda mutasi per jenis, satu pemilik per outlet, username hanya kasir', async () => {
     expect(
       await harusGagal(siapkan, (tx) =>
         tx.stokMutasi.create({
@@ -337,7 +337,28 @@ describe('NFR-05 constraint integritas', () => {
     ).toContain('users_username_kasir_check');
   });
 
-  test('users.id wajib ada di auth.users', async () => {
+  test('ADR-07 outlet_id tidak bisa diubah selama punya baris anak (ON UPDATE RESTRICT)', async () => {
+    let lain: Fixture;
+    const pesan = await harusGagal(
+      async (tx) => {
+        await siapkan(tx);
+        lain = await buatOutlet(tx);
+        await tx.resepDetail.create({
+          data: {
+            outlet_id: f.outletId,
+            menu_id: f.menuId,
+            bahan_baku_id: f.bahanId,
+            takaran: '1',
+          },
+        });
+      },
+      (tx) =>
+        tx.$executeRaw`UPDATE menus SET outlet_id = ${lain.outletId}::uuid, nama = 'Pindah' WHERE id = ${f.menuId}::uuid`,
+    );
+    expect(pesan).toContain('resep_detail_menu_id_outlet_id_fkey');
+  });
+
+  test('NFR-01 users.id wajib ada di auth.users', async () => {
     const pesan = await harusGagal(siapkan, (tx) =>
       tx.user.create({
         data: {
@@ -352,7 +373,7 @@ describe('NFR-05 constraint integritas', () => {
     expect(pesan).toContain('users_id_auth_fkey');
   });
 
-  test('trg_updated_at mengisi updated_at saat UPDATE', async () => {
+  test('NFR-01 trg_updated_at mengisi updated_at saat UPDATE', async () => {
     await dalamRollback(async (tx) => {
       f = await buatOutlet(tx);
       await tx.$executeRaw`UPDATE menus SET updated_at = '2000-01-01' WHERE id = ${f.menuId}::uuid`;

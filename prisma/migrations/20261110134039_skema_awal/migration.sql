@@ -327,97 +327,98 @@ CREATE UNIQUE INDEX "stok_opname_detail_stok_opname_id_bahan_baku_id_key" ON "st
 CREATE UNIQUE INDEX "transaksi_gagal_outlet_id_client_tx_id_key" ON "transaksi_gagal"("outlet_id", "client_tx_id");
 
 -- AddForeignKey
-ALTER TABLE "users" ADD CONSTRAINT "users_outlet_id_fkey" FOREIGN KEY ("outlet_id") REFERENCES "outlets"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "users" ADD CONSTRAINT "users_outlet_id_fkey" FOREIGN KEY ("outlet_id") REFERENCES "outlets"("id") ON DELETE RESTRICT ON UPDATE RESTRICT;
 
 -- AddForeignKey
-ALTER TABLE "bahan_baku" ADD CONSTRAINT "bahan_baku_outlet_id_fkey" FOREIGN KEY ("outlet_id") REFERENCES "outlets"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "bahan_baku" ADD CONSTRAINT "bahan_baku_outlet_id_fkey" FOREIGN KEY ("outlet_id") REFERENCES "outlets"("id") ON DELETE RESTRICT ON UPDATE RESTRICT;
 
 -- AddForeignKey
-ALTER TABLE "riwayat_harga_beli" ADD CONSTRAINT "riwayat_harga_beli_outlet_id_fkey" FOREIGN KEY ("outlet_id") REFERENCES "outlets"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "riwayat_harga_beli" ADD CONSTRAINT "riwayat_harga_beli_outlet_id_fkey" FOREIGN KEY ("outlet_id") REFERENCES "outlets"("id") ON DELETE RESTRICT ON UPDATE RESTRICT;
 
 -- AddForeignKey
-ALTER TABLE "riwayat_harga_beli" ADD CONSTRAINT "riwayat_harga_beli_bahan_baku_id_outlet_id_fkey" FOREIGN KEY ("bahan_baku_id", "outlet_id") REFERENCES "bahan_baku"("id", "outlet_id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "riwayat_harga_beli" ADD CONSTRAINT "riwayat_harga_beli_bahan_baku_id_outlet_id_fkey" FOREIGN KEY ("bahan_baku_id", "outlet_id") REFERENCES "bahan_baku"("id", "outlet_id") ON DELETE RESTRICT ON UPDATE RESTRICT;
 
 -- AddForeignKey
-ALTER TABLE "riwayat_harga_beli" ADD CONSTRAINT "riwayat_harga_beli_user_id_outlet_id_fkey" FOREIGN KEY ("user_id", "outlet_id") REFERENCES "users"("id", "outlet_id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "riwayat_harga_beli" ADD CONSTRAINT "riwayat_harga_beli_user_id_outlet_id_fkey" FOREIGN KEY ("user_id", "outlet_id") REFERENCES "users"("id", "outlet_id") ON DELETE RESTRICT ON UPDATE RESTRICT;
 
 -- AddForeignKey
-ALTER TABLE "menus" ADD CONSTRAINT "menus_outlet_id_fkey" FOREIGN KEY ("outlet_id") REFERENCES "outlets"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "menus" ADD CONSTRAINT "menus_outlet_id_fkey" FOREIGN KEY ("outlet_id") REFERENCES "outlets"("id") ON DELETE RESTRICT ON UPDATE RESTRICT;
 
 -- AddForeignKey
-ALTER TABLE "resep_detail" ADD CONSTRAINT "resep_detail_outlet_id_fkey" FOREIGN KEY ("outlet_id") REFERENCES "outlets"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "resep_detail" ADD CONSTRAINT "resep_detail_outlet_id_fkey" FOREIGN KEY ("outlet_id") REFERENCES "outlets"("id") ON DELETE RESTRICT ON UPDATE RESTRICT;
 
 -- AddForeignKey
-ALTER TABLE "resep_detail" ADD CONSTRAINT "resep_detail_menu_id_outlet_id_fkey" FOREIGN KEY ("menu_id", "outlet_id") REFERENCES "menus"("id", "outlet_id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "resep_detail" ADD CONSTRAINT "resep_detail_menu_id_outlet_id_fkey" FOREIGN KEY ("menu_id", "outlet_id") REFERENCES "menus"("id", "outlet_id") ON DELETE CASCADE ON UPDATE RESTRICT;
 
 -- AddForeignKey
-ALTER TABLE "resep_detail" ADD CONSTRAINT "resep_detail_bahan_baku_id_outlet_id_fkey" FOREIGN KEY ("bahan_baku_id", "outlet_id") REFERENCES "bahan_baku"("id", "outlet_id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "resep_detail" ADD CONSTRAINT "resep_detail_bahan_baku_id_outlet_id_fkey" FOREIGN KEY ("bahan_baku_id", "outlet_id") REFERENCES "bahan_baku"("id", "outlet_id") ON DELETE RESTRICT ON UPDATE RESTRICT;
 
 -- AddForeignKey
-ALTER TABLE "transaksi" ADD CONSTRAINT "transaksi_outlet_id_fkey" FOREIGN KEY ("outlet_id") REFERENCES "outlets"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "transaksi" ADD CONSTRAINT "transaksi_outlet_id_fkey" FOREIGN KEY ("outlet_id") REFERENCES "outlets"("id") ON DELETE RESTRICT ON UPDATE RESTRICT;
 
 -- AddForeignKey
-ALTER TABLE "transaksi" ADD CONSTRAINT "transaksi_user_id_outlet_id_fkey" FOREIGN KEY ("user_id", "outlet_id") REFERENCES "users"("id", "outlet_id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "transaksi" ADD CONSTRAINT "transaksi_user_id_outlet_id_fkey" FOREIGN KEY ("user_id", "outlet_id") REFERENCES "users"("id", "outlet_id") ON DELETE RESTRICT ON UPDATE RESTRICT;
 
 -- AddForeignKey
-ALTER TABLE "transaksi" ADD CONSTRAINT "transaksi_dibuat_oleh_outlet_id_fkey" FOREIGN KEY ("dibuat_oleh", "outlet_id") REFERENCES "users"("id", "outlet_id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "transaksi" ADD CONSTRAINT "transaksi_dibuat_oleh_outlet_id_fkey" FOREIGN KEY ("dibuat_oleh", "outlet_id") REFERENCES "users"("id", "outlet_id") ON DELETE RESTRICT ON UPDATE RESTRICT;
 
 -- AddForeignKey
-ALTER TABLE "transaksi" ADD CONSTRAINT "transaksi_dibatalkan_oleh_outlet_id_fkey" FOREIGN KEY ("dibatalkan_oleh", "outlet_id") REFERENCES "users"("id", "outlet_id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "transaksi" ADD CONSTRAINT "transaksi_dibatalkan_oleh_outlet_id_fkey" FOREIGN KEY ("dibatalkan_oleh", "outlet_id") REFERENCES "users"("id", "outlet_id") ON DELETE RESTRICT ON UPDATE RESTRICT;
 
 -- AddForeignKey
-ALTER TABLE "detail_transaksi" ADD CONSTRAINT "detail_transaksi_outlet_id_fkey" FOREIGN KEY ("outlet_id") REFERENCES "outlets"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "detail_transaksi" ADD CONSTRAINT "detail_transaksi_outlet_id_fkey" FOREIGN KEY ("outlet_id") REFERENCES "outlets"("id") ON DELETE RESTRICT ON UPDATE RESTRICT;
 
 -- AddForeignKey
-ALTER TABLE "detail_transaksi" ADD CONSTRAINT "detail_transaksi_transaksi_id_outlet_id_fkey" FOREIGN KEY ("transaksi_id", "outlet_id") REFERENCES "transaksi"("id", "outlet_id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "detail_transaksi" ADD CONSTRAINT "detail_transaksi_transaksi_id_outlet_id_fkey" FOREIGN KEY ("transaksi_id", "outlet_id") REFERENCES "transaksi"("id", "outlet_id") ON DELETE RESTRICT ON UPDATE RESTRICT;
 
 -- AddForeignKey
-ALTER TABLE "detail_transaksi" ADD CONSTRAINT "detail_transaksi_menu_id_outlet_id_fkey" FOREIGN KEY ("menu_id", "outlet_id") REFERENCES "menus"("id", "outlet_id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "detail_transaksi" ADD CONSTRAINT "detail_transaksi_menu_id_outlet_id_fkey" FOREIGN KEY ("menu_id", "outlet_id") REFERENCES "menus"("id", "outlet_id") ON DELETE RESTRICT ON UPDATE RESTRICT;
 
 -- AddForeignKey
-ALTER TABLE "stok_mutasi" ADD CONSTRAINT "stok_mutasi_outlet_id_fkey" FOREIGN KEY ("outlet_id") REFERENCES "outlets"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "stok_mutasi" ADD CONSTRAINT "stok_mutasi_outlet_id_fkey" FOREIGN KEY ("outlet_id") REFERENCES "outlets"("id") ON DELETE RESTRICT ON UPDATE RESTRICT;
 
 -- AddForeignKey
-ALTER TABLE "stok_mutasi" ADD CONSTRAINT "stok_mutasi_bahan_baku_id_outlet_id_fkey" FOREIGN KEY ("bahan_baku_id", "outlet_id") REFERENCES "bahan_baku"("id", "outlet_id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "stok_mutasi" ADD CONSTRAINT "stok_mutasi_bahan_baku_id_outlet_id_fkey" FOREIGN KEY ("bahan_baku_id", "outlet_id") REFERENCES "bahan_baku"("id", "outlet_id") ON DELETE RESTRICT ON UPDATE RESTRICT;
 
 -- AddForeignKey
-ALTER TABLE "stok_mutasi" ADD CONSTRAINT "stok_mutasi_user_id_outlet_id_fkey" FOREIGN KEY ("user_id", "outlet_id") REFERENCES "users"("id", "outlet_id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "stok_mutasi" ADD CONSTRAINT "stok_mutasi_user_id_outlet_id_fkey" FOREIGN KEY ("user_id", "outlet_id") REFERENCES "users"("id", "outlet_id") ON DELETE RESTRICT ON UPDATE RESTRICT;
 
 -- AddForeignKey
-ALTER TABLE "restock_log" ADD CONSTRAINT "restock_log_outlet_id_fkey" FOREIGN KEY ("outlet_id") REFERENCES "outlets"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "restock_log" ADD CONSTRAINT "restock_log_outlet_id_fkey" FOREIGN KEY ("outlet_id") REFERENCES "outlets"("id") ON DELETE RESTRICT ON UPDATE RESTRICT;
 
 -- AddForeignKey
-ALTER TABLE "restock_log" ADD CONSTRAINT "restock_log_bahan_baku_id_outlet_id_fkey" FOREIGN KEY ("bahan_baku_id", "outlet_id") REFERENCES "bahan_baku"("id", "outlet_id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "restock_log" ADD CONSTRAINT "restock_log_bahan_baku_id_outlet_id_fkey" FOREIGN KEY ("bahan_baku_id", "outlet_id") REFERENCES "bahan_baku"("id", "outlet_id") ON DELETE RESTRICT ON UPDATE RESTRICT;
 
 -- AddForeignKey
-ALTER TABLE "restock_log" ADD CONSTRAINT "restock_log_user_id_outlet_id_fkey" FOREIGN KEY ("user_id", "outlet_id") REFERENCES "users"("id", "outlet_id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "restock_log" ADD CONSTRAINT "restock_log_user_id_outlet_id_fkey" FOREIGN KEY ("user_id", "outlet_id") REFERENCES "users"("id", "outlet_id") ON DELETE RESTRICT ON UPDATE RESTRICT;
 
 -- AddForeignKey
-ALTER TABLE "stok_opname" ADD CONSTRAINT "stok_opname_outlet_id_fkey" FOREIGN KEY ("outlet_id") REFERENCES "outlets"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "stok_opname" ADD CONSTRAINT "stok_opname_outlet_id_fkey" FOREIGN KEY ("outlet_id") REFERENCES "outlets"("id") ON DELETE RESTRICT ON UPDATE RESTRICT;
 
 -- AddForeignKey
-ALTER TABLE "stok_opname" ADD CONSTRAINT "stok_opname_user_id_outlet_id_fkey" FOREIGN KEY ("user_id", "outlet_id") REFERENCES "users"("id", "outlet_id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "stok_opname" ADD CONSTRAINT "stok_opname_user_id_outlet_id_fkey" FOREIGN KEY ("user_id", "outlet_id") REFERENCES "users"("id", "outlet_id") ON DELETE RESTRICT ON UPDATE RESTRICT;
 
 -- AddForeignKey
-ALTER TABLE "stok_opname_detail" ADD CONSTRAINT "stok_opname_detail_outlet_id_fkey" FOREIGN KEY ("outlet_id") REFERENCES "outlets"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "stok_opname_detail" ADD CONSTRAINT "stok_opname_detail_outlet_id_fkey" FOREIGN KEY ("outlet_id") REFERENCES "outlets"("id") ON DELETE RESTRICT ON UPDATE RESTRICT;
 
 -- AddForeignKey
-ALTER TABLE "stok_opname_detail" ADD CONSTRAINT "stok_opname_detail_stok_opname_id_outlet_id_fkey" FOREIGN KEY ("stok_opname_id", "outlet_id") REFERENCES "stok_opname"("id", "outlet_id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "stok_opname_detail" ADD CONSTRAINT "stok_opname_detail_stok_opname_id_outlet_id_fkey" FOREIGN KEY ("stok_opname_id", "outlet_id") REFERENCES "stok_opname"("id", "outlet_id") ON DELETE RESTRICT ON UPDATE RESTRICT;
 
 -- AddForeignKey
-ALTER TABLE "stok_opname_detail" ADD CONSTRAINT "stok_opname_detail_bahan_baku_id_outlet_id_fkey" FOREIGN KEY ("bahan_baku_id", "outlet_id") REFERENCES "bahan_baku"("id", "outlet_id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "stok_opname_detail" ADD CONSTRAINT "stok_opname_detail_bahan_baku_id_outlet_id_fkey" FOREIGN KEY ("bahan_baku_id", "outlet_id") REFERENCES "bahan_baku"("id", "outlet_id") ON DELETE RESTRICT ON UPDATE RESTRICT;
 
 -- AddForeignKey
-ALTER TABLE "stok_alert" ADD CONSTRAINT "stok_alert_outlet_id_fkey" FOREIGN KEY ("outlet_id") REFERENCES "outlets"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "stok_alert" ADD CONSTRAINT "stok_alert_outlet_id_fkey" FOREIGN KEY ("outlet_id") REFERENCES "outlets"("id") ON DELETE RESTRICT ON UPDATE RESTRICT;
 
 -- AddForeignKey
-ALTER TABLE "stok_alert" ADD CONSTRAINT "stok_alert_bahan_baku_id_outlet_id_fkey" FOREIGN KEY ("bahan_baku_id", "outlet_id") REFERENCES "bahan_baku"("id", "outlet_id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "stok_alert" ADD CONSTRAINT "stok_alert_bahan_baku_id_outlet_id_fkey" FOREIGN KEY ("bahan_baku_id", "outlet_id") REFERENCES "bahan_baku"("id", "outlet_id") ON DELETE RESTRICT ON UPDATE RESTRICT;
 
 -- AddForeignKey
-ALTER TABLE "transaksi_gagal" ADD CONSTRAINT "transaksi_gagal_outlet_id_fkey" FOREIGN KEY ("outlet_id") REFERENCES "outlets"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "transaksi_gagal" ADD CONSTRAINT "transaksi_gagal_outlet_id_fkey" FOREIGN KEY ("outlet_id") REFERENCES "outlets"("id") ON DELETE RESTRICT ON UPDATE RESTRICT;
 
 -- AddForeignKey
-ALTER TABLE "transaksi_gagal" ADD CONSTRAINT "transaksi_gagal_user_id_outlet_id_fkey" FOREIGN KEY ("user_id", "outlet_id") REFERENCES "users"("id", "outlet_id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "transaksi_gagal" ADD CONSTRAINT "transaksi_gagal_user_id_outlet_id_fkey" FOREIGN KEY ("user_id", "outlet_id") REFERENCES "users"("id", "outlet_id") ON DELETE RESTRICT ON UPDATE RESTRICT;
+
 
 -- =====================================================================================
 -- SQL MANUAL (tidak dikenal Prisma). Setiap objek tercatat di prisma/manual-objects.sql.md.

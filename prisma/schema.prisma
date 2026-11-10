@@ -151,7 +151,7 @@ model User {
   sesi_valid_sejak DateTime @default(dbgenerated("date_trunc('second'::text, now())")) @db.Timestamptz(6)
   created_at       DateTime @default(now()) @db.Timestamptz(6)
 
-  outlet               Outlet             @relation(fields: [outlet_id], references: [id])
+  outlet               Outlet             @relation(fields: [outlet_id], references: [id], onUpdate: Restrict)
   transaksi_dikirim    Transaksi[]        @relation("transaksi_user")
   transaksi_dibuat     Transaksi[]        @relation("transaksi_dibuat_oleh")
   transaksi_dibatalkan Transaksi[]        @relation("transaksi_dibatalkan_oleh")
@@ -177,7 +177,7 @@ model BahanBaku {
   created_at            DateTime  @default(now()) @db.Timestamptz(6)
   updated_at            DateTime  @default(now()) @db.Timestamptz(6)
 
-  outlet        Outlet             @relation(fields: [outlet_id], references: [id])
+  outlet        Outlet             @relation(fields: [outlet_id], references: [id], onUpdate: Restrict)
   resep_detail  ResepDetail[]
   stok_mutasi   StokMutasi[]
   riwayat_harga RiwayatHargaBeli[]
@@ -201,9 +201,9 @@ model RiwayatHargaBeli {
   user_id       String      @db.Uuid
   created_at    DateTime    @default(now()) @db.Timestamptz(6)
 
-  outlet     Outlet    @relation(fields: [outlet_id], references: [id])
-  bahan_baku BahanBaku @relation(fields: [bahan_baku_id, outlet_id], references: [id, outlet_id])
-  user       User      @relation(fields: [user_id, outlet_id], references: [id, outlet_id])
+  outlet     Outlet    @relation(fields: [outlet_id], references: [id], onUpdate: Restrict)
+  bahan_baku BahanBaku @relation(fields: [bahan_baku_id, outlet_id], references: [id, outlet_id], onUpdate: Restrict)
+  user       User      @relation(fields: [user_id, outlet_id], references: [id, outlet_id], onUpdate: Restrict)
 
   @@index([bahan_baku_id, created_at(sort: Desc)], map: "idx_riwayat_harga_bahan")
   @@map("riwayat_harga_beli")
@@ -220,7 +220,7 @@ model Menu {
   created_at DateTime @default(now()) @db.Timestamptz(6)
   updated_at DateTime @default(now()) @db.Timestamptz(6)
 
-  outlet           Outlet            @relation(fields: [outlet_id], references: [id])
+  outlet           Outlet            @relation(fields: [outlet_id], references: [id], onUpdate: Restrict)
   resep_detail     ResepDetail[]
   detail_transaksi DetailTransaksi[]
 
@@ -235,9 +235,9 @@ model ResepDetail {
   bahan_baku_id String  @db.Uuid
   takaran       Decimal @db.Decimal(12, 3)
 
-  outlet     Outlet    @relation(fields: [outlet_id], references: [id])
-  menu       Menu      @relation(fields: [menu_id, outlet_id], references: [id, outlet_id], onDelete: Cascade)
-  bahan_baku BahanBaku @relation(fields: [bahan_baku_id, outlet_id], references: [id, outlet_id])
+  outlet     Outlet    @relation(fields: [outlet_id], references: [id], onUpdate: Restrict)
+  menu       Menu      @relation(fields: [menu_id, outlet_id], references: [id, outlet_id], onDelete: Cascade, onUpdate: Restrict)
+  bahan_baku BahanBaku @relation(fields: [bahan_baku_id, outlet_id], references: [id, outlet_id], onUpdate: Restrict)
 
   @@unique([menu_id, bahan_baku_id])
   @@index([menu_id], map: "idx_resep_menu")
@@ -271,10 +271,10 @@ model Transaksi {
   catatan_batal   String?
   created_at      DateTime        @default(now()) @db.Timestamptz(6)
 
-  outlet   Outlet            @relation(fields: [outlet_id], references: [id])
-  user     User              @relation("transaksi_user", fields: [user_id, outlet_id], references: [id, outlet_id])
-  pembuat  User              @relation("transaksi_dibuat_oleh", fields: [dibuat_oleh, outlet_id], references: [id, outlet_id])
-  pembatal User?             @relation("transaksi_dibatalkan_oleh", fields: [dibatalkan_oleh, outlet_id], references: [id, outlet_id], onDelete: Restrict)
+  outlet   Outlet            @relation(fields: [outlet_id], references: [id], onUpdate: Restrict)
+  user     User              @relation("transaksi_user", fields: [user_id, outlet_id], references: [id, outlet_id], onUpdate: Restrict)
+  pembuat  User              @relation("transaksi_dibuat_oleh", fields: [dibuat_oleh, outlet_id], references: [id, outlet_id], onUpdate: Restrict)
+  pembatal User?             @relation("transaksi_dibatalkan_oleh", fields: [dibatalkan_oleh, outlet_id], references: [id, outlet_id], onDelete: Restrict, onUpdate: Restrict)
   detail   DetailTransaksi[]
 
   @@unique([id, outlet_id])
@@ -296,9 +296,9 @@ model DetailTransaksi {
   qty          Int     @db.SmallInt
   subtotal     BigInt
 
-  outlet    Outlet    @relation(fields: [outlet_id], references: [id])
-  transaksi Transaksi @relation(fields: [transaksi_id, outlet_id], references: [id, outlet_id])
-  menu      Menu      @relation(fields: [menu_id, outlet_id], references: [id, outlet_id])
+  outlet    Outlet    @relation(fields: [outlet_id], references: [id], onUpdate: Restrict)
+  transaksi Transaksi @relation(fields: [transaksi_id, outlet_id], references: [id, outlet_id], onUpdate: Restrict)
+  menu      Menu      @relation(fields: [menu_id, outlet_id], references: [id, outlet_id], onUpdate: Restrict)
 
   @@unique([transaksi_id, menu_id])
   @@index([transaksi_id], map: "idx_detail_transaksi")
@@ -318,9 +318,9 @@ model StokMutasi {
   user_id       String      @db.Uuid
   created_at    DateTime    @default(now()) @db.Timestamptz(6)
 
-  outlet     Outlet    @relation(fields: [outlet_id], references: [id])
-  bahan_baku BahanBaku @relation(fields: [bahan_baku_id, outlet_id], references: [id, outlet_id])
-  user       User      @relation(fields: [user_id, outlet_id], references: [id, outlet_id])
+  outlet     Outlet    @relation(fields: [outlet_id], references: [id], onUpdate: Restrict)
+  bahan_baku BahanBaku @relation(fields: [bahan_baku_id, outlet_id], references: [id, outlet_id], onUpdate: Restrict)
+  user       User      @relation(fields: [user_id, outlet_id], references: [id, outlet_id], onUpdate: Restrict)
 
   @@index([bahan_baku_id, seq(sort: Desc)], map: "idx_mutasi_bahan")
   @@map("stok_mutasi")
@@ -339,9 +339,9 @@ model RestockLog {
   harga_beli_sebelumnya Decimal     @db.Decimal(12, 2)
   created_at            DateTime    @default(now()) @db.Timestamptz(6)
 
-  outlet     Outlet    @relation(fields: [outlet_id], references: [id])
-  bahan_baku BahanBaku @relation(fields: [bahan_baku_id, outlet_id], references: [id, outlet_id])
-  user       User      @relation(fields: [user_id, outlet_id], references: [id, outlet_id])
+  outlet     Outlet    @relation(fields: [outlet_id], references: [id], onUpdate: Restrict)
+  bahan_baku BahanBaku @relation(fields: [bahan_baku_id, outlet_id], references: [id, outlet_id], onUpdate: Restrict)
+  user       User      @relation(fields: [user_id, outlet_id], references: [id, outlet_id], onUpdate: Restrict)
 
   @@index([outlet_id, created_at(sort: Desc)], map: "idx_restock_outlet_created")
   @@map("restock_log")
@@ -354,8 +354,8 @@ model StokOpname {
   catatan    String?
   created_at DateTime @default(now()) @db.Timestamptz(6)
 
-  outlet Outlet             @relation(fields: [outlet_id], references: [id])
-  user   User               @relation(fields: [user_id, outlet_id], references: [id, outlet_id])
+  outlet Outlet             @relation(fields: [outlet_id], references: [id], onUpdate: Restrict)
+  user   User               @relation(fields: [user_id, outlet_id], references: [id, outlet_id], onUpdate: Restrict)
   detail StokOpnameDetail[]
 
   @@unique([id, outlet_id])
@@ -376,9 +376,9 @@ model StokOpnameDetail {
   // Salinan stok_opname.created_at.
   created_at     DateTime      @db.Timestamptz(6)
 
-  outlet      Outlet     @relation(fields: [outlet_id], references: [id])
-  stok_opname StokOpname @relation(fields: [stok_opname_id, outlet_id], references: [id, outlet_id])
-  bahan_baku  BahanBaku  @relation(fields: [bahan_baku_id, outlet_id], references: [id, outlet_id])
+  outlet      Outlet     @relation(fields: [outlet_id], references: [id], onUpdate: Restrict)
+  stok_opname StokOpname @relation(fields: [stok_opname_id, outlet_id], references: [id, outlet_id], onUpdate: Restrict)
+  bahan_baku  BahanBaku  @relation(fields: [bahan_baku_id, outlet_id], references: [id, outlet_id], onUpdate: Restrict)
 
   @@unique([stok_opname_id, bahan_baku_id])
   @@index([bahan_baku_id, created_at], map: "idx_opname_detail_bahan_created")
@@ -395,8 +395,8 @@ model StokAlert {
   ditutup_otomatis Boolean    @default(false)
   created_at       DateTime   @default(now()) @db.Timestamptz(6)
 
-  outlet     Outlet    @relation(fields: [outlet_id], references: [id])
-  bahan_baku BahanBaku @relation(fields: [bahan_baku_id, outlet_id], references: [id, outlet_id])
+  outlet     Outlet    @relation(fields: [outlet_id], references: [id], onUpdate: Restrict)
+  bahan_baku BahanBaku @relation(fields: [bahan_baku_id, outlet_id], references: [id, outlet_id], onUpdate: Restrict)
 
   @@map("stok_alert")
 }
@@ -414,8 +414,8 @@ model TransaksiGagal {
   ditangani_at       DateTime? @db.Timestamptz(6)
   ditangani_otomatis Boolean   @default(false)
 
-  outlet Outlet @relation(fields: [outlet_id], references: [id])
-  user   User   @relation(fields: [user_id, outlet_id], references: [id, outlet_id])
+  outlet Outlet @relation(fields: [outlet_id], references: [id], onUpdate: Restrict)
+  user   User   @relation(fields: [user_id, outlet_id], references: [id, outlet_id], onUpdate: Restrict)
 
   @@unique([outlet_id, client_tx_id])
   @@map("transaksi_gagal")
