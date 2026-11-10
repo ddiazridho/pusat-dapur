@@ -1,0 +1,45 @@
+# Satu-satunya jalur migrasi ke Supabase prod (docs/architecture/data-model.md → Migrasi,
+# struktur-kode.md → CI/CD). Berjalan setelah merge ke main yang mengubah prisma/migrations/**,
+# menunggu approval pemilik proyek di GitHub environment `production` (H1, H7).
+# Secret environment `production`: DIRECT_URL (session pooler/direct :5432 Supabase prod).
+name: Migrate prod
+
+on:
+  push:
+    branches: [main]
+    paths: ['prisma/migrations/**']
+  workflow_dispatch:
+
+concurrency:
+  group: migrate-prod
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  migrate:
+    name: prisma migrate deploy (prod)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Migrate deploy
+        env:
+          DIRECT_URL: ${{ secrets.DIRECT_URL }}
+          DATABASE_URL: ${{ secrets.DIRECT_URL }}
+        run: |
+          if [ -z "$DIRECT_URL" ]; then echo "Secret DIRECT_URL (environment production) belum diisi."; exit 1; fi
+          pnpm exec prisma migrate deploy
