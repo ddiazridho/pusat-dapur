@@ -206,7 +206,8 @@ password_requirements = ""
 
 [auth.rate_limit]
 # Number of emails that can be sent per hour. Requires auth.email.smtp to be enabled.
-# Pusat Dapur: 3 email reset/jam (FRD auth.md).
+# Pusat Dapur: maks 3 email/jam, dihitung per project (bukan per alamat email); NFR-04
+# (docs/frd pusat dapur/non-functional.md). Di prod diatur setelah SMTP Brevo (#14).
 email_sent = 3
 # Number of SMS messages that can be sent per hour. Requires auth.sms to be enabled.
 sms_sent = 30
@@ -281,12 +282,13 @@ max_frequency = "5s"
 # 14152127777 = "123456"
 
 # Configure logged in session timeouts.
-[auth.sessions]
+# Pusat Dapur: tidak diatur agar lokal/CI sama dengan dev/prod di paket Free (fitur khusus Pro);
+# lihat docs/audit-report.md → Keputusan atas Pertanyaan #9.
+# [auth.sessions]
 # Force log out after the specified duration.
 # timebox = "24h"
 # Force log out if the user has been inactive longer than the specified duration.
-# Pusat Dapur: inactivity 30 hari (auth-akses.md).
-inactivity_timeout = "720h"
+# inactivity_timeout = "8h"
 
 # This hook runs before a new user is created and allows developers to reject the request based on the incoming user object.
 # [auth.hook.before_user_created]
