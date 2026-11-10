@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'vitest';
 import { aksesRoute, bolehAkses } from '@/shared/akses';
 import { DOMAIN_EMAIL_KASIR, emailLogin } from '@/shared/akun';
+import { RATE_LIMIT } from '@/shared/konstanta';
 import { detailDariZod, KODE_ERROR, kodeDariZod, statusKode } from '@/shared/kode-error';
 import * as s from '@/shared/schemas';
 import { cariTemplate, cocokkanBahan, TEMPLATE_RESEP } from '@/shared/templates/resep';
@@ -67,7 +68,7 @@ describe('NFR-01 skema .strict() tanpa outlet_id (api.md)', () => {
 });
 
 describe('batas nilai FRD', () => {
-  test('bahan-baku.md: stok awal ≤ 100.000.000, maks 3 desimal, harga ≤ 10 jt 2 desimal; PATCH hanya 3 field', () => {
+  test('US-03 bahan-baku.md: stok awal ≤ 100.000.000, maks 3 desimal, harga ≤ 10 jt 2 desimal; PATCH hanya 3 field', () => {
     const dasar = { nama: '  Telur ayam ', satuan: 'buah', stok_saat_ini: '100000000', threshold_min: '0', harga_beli_per_satuan: '10000000' };
     expect(s.buatBahanSchema.parse(dasar).nama).toBe('Telur ayam');
     expect(gagal(s.buatBahanSchema, { ...dasar, stok_saat_ini: '100000000.001' }).detail).toHaveProperty('stok_saat_ini');
@@ -82,7 +83,7 @@ describe('batas nilai FRD', () => {
     expect(s.ubahBahanSchema.parse({ threshold_min: '999999999.999' })).toEqual({ threshold_min: '999999999.999' });
   });
 
-  test('menu.md & resep.md: harga 1–10 jt integer, takaran > 0 ≤ 100.000, 0–30 item, duplikat → BAHAN_DUPLIKAT', () => {
+  test('US-04 menu.md & resep.md: harga 1–10 jt integer, takaran > 0 ≤ 100.000, 0–30 item, duplikat → BAHAN_DUPLIKAT', () => {
     expect(gagal(s.buatMenuSchema, { nama: 'Nasi Goreng', harga_jual: 0 }).detail).toHaveProperty('harga_jual');
     expect(gagal(s.buatMenuSchema, { nama: 'Nasi Goreng', harga_jual: 10_000_001 }).detail).toHaveProperty('harga_jual');
     expect(gagal(s.buatMenuSchema, { nama: 'Nasi Goreng', harga_jual: 1500.5 }).detail).toHaveProperty('harga_jual');
@@ -102,7 +103,7 @@ describe('batas nilai FRD', () => {
     expect(gagal(s.ubahMenuSchema, { hpp_cached: '1' }).detail).toHaveProperty('hpp_cached');
   });
 
-  test('resep.md terapkan template: 1–30 item, bahan lama atau bahan baru', () => {
+  test('US-04 resep.md terapkan template: 1–30 item, bahan lama atau bahan baru', () => {
     expect(
       s.terapkanTemplateSchema.parse({
         harga_jual: 15_000,
@@ -124,7 +125,7 @@ describe('batas nilai FRD', () => {
     ).toBe('BAHAN_DUPLIKAT');
   });
 
-  test('restock.md: jumlah > 0 ≤ 100.000 maks 3 desimal, total 0–100 jt; query di-coerce', () => {
+  test('US-09 restock.md: jumlah > 0 ≤ 100.000 maks 3 desimal, total 0–100 jt; query di-coerce', () => {
     const p = { bahan_baku_id: UUID, jumlah_input: '5', satuan_input: 'kg', total_harga: 60_000 };
     expect(s.simpanRestockSchema.parse(p)).toEqual(p);
     expect(gagal(s.simpanRestockSchema, { ...p, jumlah_input: '0' }).detail).toHaveProperty('jumlah_input');
@@ -135,7 +136,7 @@ describe('batas nilai FRD', () => {
     expect(gagal(s.daftarRestockQuery, { limit: '101' }).detail).toHaveProperty('limit');
   });
 
-  test('pos.md: transaksi valid; qty 1–99; 1–50 item; menu unik; tunai wajib uang, qris null; nama_menu offline', () => {
+  test('US-05 pos.md: transaksi valid; qty 1–99; 1–50 item; menu unik; tunai wajib uang, qris null; nama_menu offline', () => {
     expect(s.transaksiSchema.parse(transaksiValid).items).toHaveLength(1);
     expect(gagal(s.transaksiSchema, { ...transaksiValid, items: [{ menu_id: UUID, qty: 100, harga_jual: 1 }] }).detail).toHaveProperty(['items.0.qty']);
     expect(gagal(s.transaksiSchema, { ...transaksiValid, items: [] }).detail).toHaveProperty('items');
@@ -159,14 +160,14 @@ describe('batas nilai FRD', () => {
     expect(gagal(s.transaksiSchema, { ...transaksiValid, client_tx_id: 'a0eebc99-9c0b-11ee-b9d1-0242ac120002' }).detail).toHaveProperty('client_tx_id');
   });
 
-  test('pembatalan-transaksi.md: catatan wajib ≥ 5 karakter jika lainnya, maks 200', () => {
+  test('BR-12 pembatalan-transaksi.md: catatan wajib ≥ 5 karakter jika lainnya, maks 200', () => {
     expect(s.batalTransaksiSchema.safeParse({ alasan_batal: 'salah_input' }).success).toBe(true);
     expect(gagal(s.batalTransaksiSchema, { alasan_batal: 'lainnya', catatan_batal: ' abc ' }).detail).toHaveProperty('catatan_batal');
     expect(s.batalTransaksiSchema.safeParse({ alasan_batal: 'lainnya', catatan_batal: 'tamu pergi' }).success).toBe(true);
     expect(gagal(s.batalTransaksiSchema, { alasan_batal: 'salah_input', catatan_batal: 'x'.repeat(201) }).detail).toHaveProperty('catatan_batal');
   });
 
-  test('stok-opname.md: 1–200 item unik, stok_fisik ≥ 0 ≤ MAKS_STOK, catatan ≤ 200', () => {
+  test('US-13 stok-opname.md: 1–200 item unik, stok_fisik ≥ 0 ≤ MAKS_STOK, catatan ≤ 200', () => {
     const item = { bahan_baku_id: UUID, stok_fisik: '0' };
     expect(s.simpanOpnameSchema.safeParse({ items: [item] }).success).toBe(true);
     expect(gagal(s.simpanOpnameSchema, { items: [] }).detail).toHaveProperty('items');
@@ -175,7 +176,7 @@ describe('batas nilai FRD', () => {
     expect(gagal(s.simpanOpnameSchema, { items: [{ ...item, stok_fisik: '-1' }] }).detail).toHaveProperty(['items.0.stok_fisik']);
   });
 
-  test('auth.md & akun-kasir.md: password 8–72, ganti ≠ lama, username regex 3–30', () => {
+  test('US-01 US-02 auth.md & akun-kasir.md: password 8–72, ganti ≠ lama, username regex 3–30', () => {
     expect(gagal(s.daftarSchema, { email: 'a@b.co', password: '1234567', nama: 'Sari', nama_outlet: 'W' }).detail).toHaveProperty('password');
     expect(gagal(s.daftarSchema, { email: 'bukan-email', password: '12345678', nama: 'Sari', nama_outlet: 'W' }).detail).toHaveProperty('email');
     expect(s.daftarSchema.parse({ email: ' Sari@Mail.COM ', password: '12345678', nama: 'Sari', nama_outlet: 'W' }).email).toBe('sari@mail.com');
@@ -186,7 +187,7 @@ describe('batas nilai FRD', () => {
     expect(gagal(s.ubahKasirSchema, { username: 'baru' }).detail).toHaveProperty('username');
   });
 
-  test('pengaturan-outlet.md & alert-stok.md: onboarding & sudah_dibaca hanya true; ambang 0–100', () => {
+  test('US-11 pengaturan-outlet.md & alert-stok.md: onboarding & sudah_dibaca hanya true; ambang 0–100', () => {
     expect(gagal(s.ubahPengaturanSchema, { onboarding_selesai: false }).detail).toHaveProperty('onboarding_selesai');
     expect(gagal(s.ubahPengaturanSchema, { ambang_margin: 101 }).detail).toHaveProperty('ambang_margin');
     expect(gagal(s.ubahPengaturanSchema, { zona_waktu: 'Asia/Singapore' }).detail).toHaveProperty('zona_waktu');
@@ -195,7 +196,27 @@ describe('batas nilai FRD', () => {
     expect(gagal(s.laporanQuery, { periode: 'bulan_ini' }).detail).toHaveProperty('periode');
   });
 
-  test('query: tanggal kalender valid, rentang mutasi, pencarian min 2', () => {
+  test('NFR-04 log-client: url pola route tanpa parameter struk; ≤ 4 KB', () => {
+    const ok = { pesan: 'TypeError', url: '/struk/[clientTxId]' };
+    expect(s.logClientSchema.safeParse(ok).success).toBe(true);
+    expect(s.logClientSchema.safeParse({ ...ok, url: '/kasir' }).success).toBe(true);
+    expect(gagal(s.logClientSchema, { ...ok, url: '/s/q1w2e3r4t5y6u7i8o9p0aZ' }).detail).toHaveProperty('url');
+    expect(gagal(s.logClientSchema, { ...ok, url: `/struk/${UUID}` }).detail).toHaveProperty('url');
+    expect(gagal(s.logClientSchema, { ...ok, url: '/kasir?x=1' }).detail).toHaveProperty('url');
+    expect(gagal(s.logClientSchema, { ...ok, url: 'https://evil.example/x' }).detail).toHaveProperty('url');
+    expect(s.logClientSchema.safeParse({ ...ok, stack: 'é'.repeat(3000), pesan: 'x'.repeat(10) }).success).toBe(false);
+  });
+
+  test('NFR-04 batas rate limit sesuai infra-operasional.md', () => {
+    expect(RATE_LIMIT).toEqual({
+      transaksi: { batas: 10, jendelaDetik: 1 },
+      daftar: { batas: 5, jendelaDetik: 3600 },
+      struk_publik: { batas: 30, jendelaDetik: 60 },
+      mutasi: { batas: 60, jendelaDetik: 60 },
+    });
+  });
+
+  test('NFR-01 query: tanggal kalender valid, rentang mutasi, pencarian min 2', () => {
     expect(gagal(s.daftarTransaksiQuery, { tanggal: '2026-02-30' }).detail).toHaveProperty('tanggal');
     expect(s.daftarTransaksiQuery.parse({ dibuat_offline: 'true' }).dibuat_offline).toBe(true);
     expect(gagal(s.daftarMutasiQuery, { dari: '2026-11-10', sampai: '2026-11-01' }).detail).toHaveProperty('sampai');
@@ -204,7 +225,7 @@ describe('batas nilai FRD', () => {
 });
 
 describe('kode-error.ts (api.md → Kode Error)', () => {
-  test('status per kode sesuai api.md', () => {
+  test('NFR-01 status per kode sesuai api.md', () => {
     expect(statusKode('VALIDASI_GAGAL')).toBe(422);
     expect(statusKode('STOK_TIDAK_CUKUP')).toBe(409);
     expect(statusKode('PASSWORD_LAMA_SALAH')).toBe(422);
@@ -231,16 +252,20 @@ describe('akses.ts ROUTE_ACCESS (auth.md → Matriks Akses)', () => {
     ['/api/bahan-baku/123/mutasi', 'kasir', false],
     ['/api/bahan-baku/123/mutasi', 'pemilik', true],
     ['/api/menu', 'kasir', false],
-    ['/api/transaksi/abc/batal', 'kasir', true], // route() membatasi ke pemilik
+    ['/api/transaksi/abc/batal', 'kasir', false],
+    ['/api/transaksi/abc/batal', 'pemilik', true],
+    ['/api/transaksi/abc', 'kasir', true],
+    ['/api/akun/password', 'kasir', true],
+    ['/api/akun/password-reset-selesai', 'kasir', false],
     ['/api/sync/snapshot', 'kasir', true],
     ['/api/laporan', 'kasir', false],
     ['/api/alert?sudah_dibaca=false', 'kasir', false],
     ['/login', 'kasir', true],
-  ] as const)('US-11 %s untuk %s → %s', (path, peran, boleh) => {
+  ] as const)('BR-12 %s untuk %s → %s', (path, peran, boleh) => {
     expect(bolehAkses(path, peran)).toBe(boleh);
   });
 
-  test('publik, cron, tidak dikenal', () => {
+  test('BR-12 publik, cron, tidak dikenal', () => {
     expect(aksesRoute('/s/tokenxyz')).toBe('publik');
     expect(aksesRoute('/api/health')).toBe('publik');
     expect(aksesRoute('/api/demo/reset')).toBe('cron');
@@ -251,7 +276,7 @@ describe('akses.ts ROUTE_ACCESS (auth.md → Matriks Akses)', () => {
 });
 
 describe('akun.ts', () => {
-  test('identitas tanpa @ dipetakan ke email internal kasir', () => {
+  test('US-02 identitas tanpa @ dipetakan ke email internal kasir', () => {
     expect(DOMAIN_EMAIL_KASIR).toBe('kasir.pusatdapur.invalid');
     expect(emailLogin(' Dimas ')).toBe('dimas@kasir.pusatdapur.invalid');
     expect(emailLogin('Sari@Mail.com')).toBe('sari@mail.com');
@@ -259,7 +284,7 @@ describe('akun.ts', () => {
 });
 
 describe('templates/resep.ts (resep.md → Daftar Template MVP)', () => {
-  test('8 template, 17 bahan unik, persis FRD', () => {
+  test('US-04 8 template, 17 bahan unik, persis FRD', () => {
     expect(TEMPLATE_RESEP.map((t) => t.kode)).toEqual([
       'nasi-goreng', 'mie-ayam', 'mie-goreng-telur', 'nasi-telur-dadar', 'es-teh-manis', 'teh-manis-panas', 'es-jeruk', 'kopi-susu',
     ]);
@@ -278,7 +303,7 @@ describe('templates/resep.ts (resep.md → Daftar Template MVP)', () => {
     }
   });
 
-  test('pencocokan: nama trim case-insensitive dan satuan sama', () => {
+  test('US-04 pencocokan: nama trim case-insensitive dan satuan sama', () => {
     const outlet = [
       { id: 'a', nama: ' telur AYAM ', satuan: 'buah' as const },
       { id: 'b', nama: 'Kecap manis', satuan: 'gram' as const },
@@ -289,7 +314,7 @@ describe('templates/resep.ts (resep.md → Daftar Template MVP)', () => {
 });
 
 describe('fixtures (docs/design/README.md → Model Konten Demo)', () => {
-  test('8 menu, 17 bahan, Nasi Goreng Rp15.000, snapshot & bahan kasir tanpa field biaya', () => {
+  test('BR-12 8 menu, 17 bahan, Nasi Goreng Rp15.000, snapshot & bahan kasir tanpa field biaya', () => {
     expect(menu).toHaveLength(8);
     expect(bahan).toHaveLength(17);
     expect(menu[0]).toMatchObject({ nama: 'Nasi Goreng', harga_jual: 15_000 });

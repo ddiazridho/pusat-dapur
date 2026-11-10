@@ -75,8 +75,8 @@ describe('BR-01 HPP & margin (hpp-margin.md)', () => {
   });
 });
 
-describe('BR-04 konversi restock (restock.md)', () => {
-  test('BR-04 contoh FRD: 5 kg beras Rp60.000 → jumlah 5000 gram, harga 12.00', () => {
+describe('US-09 konversi restock (restock.md)', () => {
+  test('US-09 contoh FRD: 5 kg beras Rp60.000 → jumlah 5000 gram, harga 12.00', () => {
     expect(konversiRestock({ jumlahInput: '5', satuanInput: 'kg', totalHarga: 60_000, satuanBahan: 'gram' })).toEqual({
       ok: true,
       jumlah: '5000.000',
@@ -84,7 +84,7 @@ describe('BR-04 konversi restock (restock.md)', () => {
     });
   });
 
-  test('BR-04 liter ×1000, half-up 2 desimal, satuan tidak cocok, harga > 10 jt', () => {
+  test('US-09 liter ×1000, half-up 2 desimal, satuan tidak cocok, harga > 10 jt', () => {
     expect(konversiRestock({ jumlahInput: '1.5', satuanInput: 'liter', totalHarga: 25_000, satuanBahan: 'ml' })).toMatchObject({
       jumlah: '1500.000',
       harga_beli_per_satuan: '16.67',
@@ -102,7 +102,7 @@ describe('BR-04 konversi restock (restock.md)', () => {
     });
   });
 
-  test('BR-04 perubahan_persen null jika harga lama 0; peringatan > ±50%', () => {
+  test('US-09 perubahan_persen null jika harga lama 0; peringatan > ±50%', () => {
     expect(perubahanHargaPersen('0.00', '12.00')).toBeNull();
     expect(perubahanHargaPersen('2000.00', '2200.00')).toBe(10);
     expect(hargaBerubahJauh(perubahanHargaPersen('10.00', '16.00'))).toBe(true);

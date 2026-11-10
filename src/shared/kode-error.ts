@@ -1,10 +1,13 @@
 import type { z } from 'zod';
+import { MAKS_AKUN_KASIR } from './konstanta';
 
 /**
  * Semua kode error API (NFR-01, `docs/architecture/api.md` → Kode Error):
  * kode → status HTTP + pesan default Bahasa Indonesia. Dipakai server
  * (`AppError`) dan client (pesan fallback bila respons tanpa `pesan`).
  * Pesan umum mengikuti `docs/design/konten-aksesibilitas.md` §2.
+ * ponytail: pesan kode spesifik yang tidak ada teksnya di dokumen desain ditulis
+ * mengikuti pola §2; UI tetap mengutamakan `pesan` dari server.
  */
 export const KODE_ERROR = {
   // Umum
@@ -18,11 +21,11 @@ export const KODE_ERROR = {
   LAYANAN_TIDAK_TERSEDIA: { status: 503, pesan: 'Layanan sedang sibuk. Data Anda belum berubah. Coba lagi.' },
 
   // auth.md
-  EMAIL_SUDAH_TERDAFTAR: { status: 409, pesan: 'Email ini sudah terdaftar.' },
+  EMAIL_SUDAH_TERDAFTAR: { status: 409, pesan: 'Email ini sudah terdaftar. Masuk atau pakai email lain.' },
   PASSWORD_LAMA_SALAH: { status: 422, pesan: 'Kata sandi lama salah.' },
   // akun-kasir.md
   USERNAME_SUDAH_ADA: { status: 409, pesan: 'Username sudah dipakai.' },
-  KUOTA_KASIR_PENUH: { status: 409, pesan: 'Maksimal 3 akun kasir aktif.' },
+  KUOTA_KASIR_PENUH: { status: 409, pesan: `Maksimal ${MAKS_AKUN_KASIR} akun kasir aktif.` },
   // bahan-baku.md
   NAMA_BAHAN_SUDAH_ADA: { status: 409, pesan: 'Nama bahan sudah ada.' },
   BAHAN_DIPAKAI_RESEP: { status: 409, pesan: 'Bahan masih dipakai di resep menu.' },

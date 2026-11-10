@@ -51,7 +51,7 @@ describe('NFR-01 batas hari 3 zona (waktu.ts)', () => {
     expect(tanggalDi('2026-11-09T16:00:00.000Z', 'Asia/Makassar')).toBe('2026-11-10');
   });
 
-  test('US-08 kasir/pembatalan: hari ini jika waktu_transaksi ATAU created_at hari ini', () => {
+  test('BR-12 kasir/pembatalan: hari ini jika waktu_transaksi ATAU created_at hari ini', () => {
     const sekarang = '2026-11-10T05:00:00.000Z';
     const tz = 'Asia/Jakarta';
     expect(transaksiHariIni({ waktu_transaksi: '2026-11-09T05:00:00Z', created_at: '2026-11-10T01:00:00Z' }, tz, sekarang)).toBe(true);
@@ -59,7 +59,7 @@ describe('NFR-01 batas hari 3 zona (waktu.ts)', () => {
     expect(transaksiHariIni({ waktu_transaksi: '2026-11-09T05:00:00Z', created_at: '2026-11-09T16:59:00Z' }, tz, sekarang)).toBe(false);
   });
 
-  test('laporan.md periode: 00:00 (hari ini − 0/6/29) s.d. sekarang + pembanding', () => {
+  test('US-12 laporan.md periode: 00:00 (hari ini − 0/6/29) s.d. sekarang + pembanding', () => {
     const sekarang = '2026-11-10T05:45:00.000Z'; // 12.45 WIB
     const h = rentangPeriode('hari_ini', 'Asia/Jakarta', sekarang);
     expect(h.mulai.toISOString()).toBe('2026-11-09T17:00:00.000Z');
@@ -83,7 +83,7 @@ describe('NFR-01 batas hari 3 zona (waktu.ts)', () => {
   });
 });
 
-describe('nomor struk (struk.md)', () => {
+describe('US-08 nomor struk (struk.md)', () => {
   test('format YYMMDD-XXXXXX-NNN dari tanggal zona outlet + device_id', () => {
     const deviceId = '3fa9c2d1-0b4e-4c8a-9f21-6a7d5e0c1b2a';
     expect(buatNomorStruk({ waktu: '2026-11-10T05:45:00Z', tz: 'Asia/Jakarta', deviceId, urutan: 14 })).toBe('261110-3FA9C2-014');
@@ -152,7 +152,7 @@ describe('NFR-07 format (konten-aksesibilitas.md §3)', () => {
     expect(relatif('2026-11-02T03:00:00Z', tz, now)).toBe('2 Nov 2026');
   });
 
-  test('teks_struk WhatsApp: satu item per baris, link hanya bila tersinkron', () => {
+  test('US-08 teks_struk WhatsApp: satu item per baris, link hanya bila tersinkron', () => {
     const teks = teksStruk({ ...transaksiContoh, url_struk: 'https://pusat-dapur.vercel.app/s/abc' }, tz);
     expect(teks.split('\n')).toEqual([
       'Warung Demo Pusat Dapur',
@@ -183,7 +183,7 @@ describe('NFR-07 format (konten-aksesibilitas.md §3)', () => {
     ['0812345678901234', null],
     ['6281234567890', null],
     ['+1 555 1234567', null],
-  ])('struk.md nomor WhatsApp %s → %s', (input, hasil) => {
+  ])('US-08 struk.md nomor WhatsApp %s → %s', (input, hasil) => {
     expect(normalisasiNomorWa(input)).toBe(hasil);
   });
 });

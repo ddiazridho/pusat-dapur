@@ -122,9 +122,9 @@ export interface DetailStokTidakCukup {
   kekurangan: { bahan_baku_id: string; nama: string; dibutuhkan: string; tersedia: string; satuan: Satuan }[];
 }
 
-/** 409 `HARGA_BERUBAH` → `detail.menu[]`. Ponytail: bentuk item tidak dirinci FRD; dipilih minimal. */
+/** 409 `HARGA_BERUBAH` → `detail.menu[]` (`pos.md`). */
 export interface DetailHargaBerubah {
-  menu: { menu_id: string; nama: string; harga_lama: number; harga_baru: number }[];
+  menu: { menu_id: string; harga_lama: number; harga_baru: number }[];
 }
 
 /** 422 `MENU_TIDAK_AKTIF` → `detail.menu_id`. */

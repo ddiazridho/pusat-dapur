@@ -129,7 +129,6 @@ export interface ResepItemResponse {
   satuan: Satuan;
   takaran: string;
   harga_beli_per_satuan: string;
-  diarsipkan: boolean;
 }
 
 export interface MenuResponse extends TurunanMenu {
@@ -146,7 +145,11 @@ export interface DetailMenuResponse extends MenuResponse {
   resep: ResepItemResponse[];
 }
 
-/** `POST /api/menu/[id]/foto`. */
+/**
+ * `POST /api/menu/[id]/foto`.
+ * ponytail: FRD hanya menyebut signed upload URL + `path`; `token` disertakan karena
+ * `uploadToSignedUrl` Supabase membutuhkannya.
+ */
 export interface SignedUploadResponse {
   signed_url: string;
   token: string;

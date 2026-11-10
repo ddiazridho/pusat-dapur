@@ -38,6 +38,7 @@ export const ROUTE_ACCESS: Readonly<Record<string, Akses>> = {
   // API
   '/api/auth/daftar': 'publik',
   '/api/akun': PK,
+  '/api/akun/password-reset-selesai': P,
   '/api/kasir': P,
   '/api/pengaturan': P,
   '/api/bahan-baku': PK,
@@ -47,6 +48,7 @@ export const ROUTE_ACCESS: Readonly<Record<string, Akses>> = {
   '/api/restock': P,
   '/api/opname': P,
   '/api/transaksi': PK,
+  '/api/transaksi/*/batal': P,
   '/api/sync': PK,
   '/api/alert': P,
   '/api/laporan': P,

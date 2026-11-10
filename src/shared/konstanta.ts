@@ -83,14 +83,28 @@ export const JUMLAH_RIWAYAT_HARGA_DETAIL = 10;
 export const MAKS_ALERT_DIBACA_HARI = 30;
 
 // ── Offline & sinkronisasi (`offline-sync.md`) ──────────────────────────────
-export const INTERVAL_SNAPSHOT_MS = 5 * 60_000;
+export const SNAPSHOT_INTERVAL_MENIT = 5;
 export const SNAPSHOT_BASI_JAM = 24;
 export const MAKS_COBA_LAGI = 3;
 export const HAPUS_SYNCED_SETELAH_JAM = 24;
 export const HAPUS_GAGAL_SETELAH_HARI = 7;
 export const BACKOFF_AWAL_DETIK = 5;
 export const BACKOFF_MAKS_DETIK = 300;
-export const KAPASITAS_ANTREAN_MIN = 500;
+export const ANTREAN_MIN = 500;
+/** Batas `payload` jsonb `transaksi_gagal` (`data-model.md`). */
+export const MAKS_PAYLOAD_GAGAL_BYTE = 64 * 1024;
+
+// ── Laporan (`laporan.md`) ──────────────────────────────────────────────────
+export const LAPORAN_CACHE_DETIK = 60;
+
+// ── Rate limit (NFR-04, `infra-operasional.md` → Rate Limit) ────────────────
+/** Nama limiter = bagian `<nama>` key Redis `rl:<nama>:<kunci>`. */
+export const RATE_LIMIT = {
+  transaksi: { batas: 10, jendelaDetik: 1 }, // POST /api/transaksi, kunci outlet_id
+  daftar: { batas: 5, jendelaDetik: 3600 }, // POST /api/auth/daftar, kunci IP
+  struk_publik: { batas: 30, jendelaDetik: 60 }, // /s/[token], kunci IP
+  mutasi: { batas: 60, jendelaDetik: 60 }, // method ≠ GET/HEAD /api/* lain, kunci user_id
+} as const;
 
 // ── Restock (`restock.md`) ──────────────────────────────────────────────────
 /** Perubahan harga beli > +50% atau < −50% memunculkan peringatan pratinjau. */

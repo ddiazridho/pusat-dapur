@@ -1,12 +1,9 @@
 import { z } from 'zod';
-import { MAKS_PAYLOAD_LOG_CLIENT_BYTE } from '../konstanta';
+import { MAKS_PAYLOAD_GAGAL_BYTE, MAKS_PAYLOAD_LOG_CLIENT_BYTE } from '../konstanta';
 import type { Satuan, ZonaWaktu } from './enum';
-import { boolQuery, paginasiQuery, uuidV4Schema } from './umum';
+import { paginasiQuery, uuidV4Schema } from './umum';
 
 /** FRD `offline-sync.md`; `api.md` → Sistem. */
-
-/** Batas `payload` jsonb `transaksi_gagal` (`data-model.md`). */
-export const MAKS_PAYLOAD_GAGAL_BYTE = 64 * 1024;
 
 const ukuranJson = (v: unknown) => new TextEncoder().encode(JSON.stringify(v)).length;
 
@@ -24,20 +21,33 @@ export const laporGagalSchema = z.strictObject({
 });
 export type LaporGagalPayload = z.infer<typeof laporGagalSchema>;
 
-export const daftarGagalQuery = z.strictObject({
-  ditangani: boolQuery.optional(),
-  ...paginasiQuery,
-});
+export const daftarGagalQuery = z.strictObject({ ...paginasiQuery });
 
-/** `PATCH /api/sync/gagal/[id]`: hanya tandai ditangani. */
+/**
+ * `PATCH /api/sync/gagal/[id]`: hanya tandai ditangani.
+ * ponytail: bentuk body tidak dirinci FRD; `{ ditangani: true }` dipilih minimal (pola `tandaiAlertSchema`).
+ */
 export const tandaiGagalSchema = z.strictObject({ ditangani: z.literal(true) });
 
-/** `POST /api/log-client`: payload ≤ 4 KB, tanpa data struk (`infra-operasional.md`). */
+/** Pola route tanpa parameter, mis. `/struk/[clientTxId]`; tanpa query/hash. */
+const POLA_ROUTE = /^\/[A-Za-z0-9_\-/[\]]*$/;
+/** Path struk berparameter nyata (`/s/abc`, `/struk/uuid`) membocorkan token/ID transaksi. */
+const PATH_STRUK_NYATA = /^\/(s|struk)\/(?!\[)/;
+
+/**
+ * `POST /api/log-client`: payload ≤ 4 KB, tanpa data struk (`infra-operasional.md`).
+ * ponytail: field tidak dirinci dokumen; dipilih minimal `{ pesan, stack?, url }`.
+ */
 export const logClientSchema = z
   .strictObject({
     pesan: z.string().max(1000),
     stack: z.string().max(3000).optional(),
-    url: z.string().max(500),
+    /** Client wajib mengirim pola route Next (`/struk/[clientTxId]`), bukan URL aktual. */
+    url: z
+      .string()
+      .max(500)
+      .regex(POLA_ROUTE, 'Kirim pola route tanpa parameter')
+      .refine((u) => !PATH_STRUK_NYATA.test(u), 'Kirim pola route tanpa parameter'),
   })
   .refine((v) => ukuranJson(v) <= MAKS_PAYLOAD_LOG_CLIENT_BYTE, 'Payload terlalu besar');
 export type LogClientPayload = z.infer<typeof logClientSchema>;
