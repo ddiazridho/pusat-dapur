@@ -71,10 +71,10 @@ Tidak ada tanggal di file ini. Jika waktu habis, ikuti **MVP Cutline** di bawah.
 
 | # | Aksi | Harus siap sebelum |
 |---|---|---|
-| H1 | Buat repo GitHub (folder proyek belum repo git), branch protection `main` (wajib CI hijau + approval), GitHub environment `production` dengan pemilik proyek sebagai approver | #1a |
-| H2 | Akun Vercel, project bernama `pusat-dapur` tersambung repo (domain produksi `pusat-dapur.vercel.app`; jika tidak tersedia, catat domain yang diberikan ke `APP_URL`) | #1a |
-| H3 | 2 project Supabase (`pusat-dapur-dev`, `pusat-dapur-prod`, region Singapura) | #1a |
-| H4 | 2 database Upstash (`dev`, `prod`, region ap-southeast-1) | #1a |
+| H1 | ✅ Buat repo GitHub (folder proyek belum repo git), branch protection `main` (wajib CI hijau + approval), GitHub environment `production` dengan pemilik proyek sebagai approver | #1a |
+| H2 | ✅ Akun Vercel, project bernama `pusat-dapur` tersambung repo (domain produksi `pusat-dapur.vercel.app`; jika tidak tersedia, catat domain yang diberikan ke `APP_URL`) | #1a |
+| H3 | ✅ 2 project Supabase (`pusat-dapur-dev`, `pusat-dapur-prod`, region Singapura) | #1a |
+| H4 | ✅ 1 database Upstash `pusat-dapur-prod` (ap-southeast-1) khusus Production; plan Free hanya 1 database, Preview tanpa Redis | #1a |
 | H5 | Akun Brevo + verifikasi satu alamat email pengirim proyek; isi kredensial SMTP di Supabase prod | #14 |
 | H6 | Secrets: `CRON_SECRET`, `DEMO_PASSWORD` (`DEMO_EMAIL` = `juri@demo.example.com`), `BACKUP_AGE_RECIPIENT` (simpan kunci privat `age` di luar repo), `VERCEL_AUTOMATION_BYPASS_SECRET` | `CRON_SECRET`: #22a · demo: #24a · backup: #25 · bypass: #14 |
 | H7 | Menyetujui PR `kontrak`/migrasi/keamanan dan run `migrate-prod.yml` | Setiap PR terkait |
@@ -175,7 +175,7 @@ Rujukan: architecture `README.md` (Stack, Versi Dikunci), `infra-operasional.md`
 - [ ] ESLint + aturan layering (`eslint-plugin-boundaries`) + `server-only`; Prettier.
 - [ ] Vitest unit (`vitest.config.ts`) + integrasi (`vitest.config.int.ts`).
 - [ ] `src/server/env.ts` & `src/shared/env-public.ts` (Zod, aturan wajib per `VERCEL_ENV`, `APP_ORIGINS` turunan); `.env.example`.
-- [ ] `vercel.json` (`regions: ["sin1"]`); env Production → Supabase/Upstash prod, Preview → dev; `APP_URL` prod.
+- [ ] `vercel.json` (`regions: ["sin1"]`); env Production → Supabase prod + Upstash `pusat-dapur-prod`, Preview → Supabase dev tanpa Upstash; `APP_URL` prod.
 - [ ] Supabase dev & prod dikonfigurasi sesuai `auth-akses.md` → Supabase: Konfigurasi Wajib (Data API off, signup off, confirm email off, JWT asimetris 3600 s, refresh rotation, inactivity 30 hari, rate limit email reset 3/jam, Site URL/redirect).
 - [ ] `supabase/` config CLI; skrip `package.json` sesuai `struktur-kode.md`.
 - [ ] Perluas `.github/workflows/ci.yml` yang sudah ada (kerangka setup repo: lint, typecheck, unit, integrasi bersyarat) sesuai gate yang aktif sejak #1a; isi `.github/pull_request_template.md` sudah tersedia.
@@ -422,7 +422,7 @@ Rujukan: NFR-04, NFR-09; architecture `infra-operasional.md`, `struktur-kode.md`
 - [ ] Upstash limiter 4 jenis di middleware (termasuk route publik), fail-open + log bila Upstash tidak terjangkau/tidak dikonfigurasi, `Retry-After`.
 - [ ] CSP nonce lengkap + seluruh header keamanan; `X-Robots-Tag` untuk `/s/*`.
 - [ ] `GET /api/health`, `POST /api/log-client`, redaksi log, `X-Request-Id`.
-- [ ] Uji: unit limiter dengan Redis tiruan (11 transaksi/detik → 429; 6 pendaftaran/jam per IP → 429) + satu E2E smoke 429 terhadap Preview.
+- [ ] Uji: unit limiter dengan Redis tiruan (11 transaksi/detik → 429; 6 pendaftaran/jam per IP → 429) (smoke 429 di Production dikerjakan di #25).
 
 ### #24a Akun demo (data & cron) · A · `feat/24a-demo-data`
 
@@ -442,6 +442,7 @@ Rujukan: design `layar-kasir.md` §6, `layout-navigasi.md` §3 (banner demo); `f
 ### #25 Hardening, QA & kesiapan demo · A (koordinator), B · `test/25-qa-demo`
 
 - [ ] Ukur & catat semua **Success Metrics** PRD (tabel di bawah).
+- [ ] Smoke rate limit Production: 31 `GET /s/<token-acak>` dalam 1 menit → ke-31 mendapat 429 (`struktur-kode.md` → Strategi Testing).
 - [ ] Lighthouse CI: `/kasir` ≤ 3 detik (3G, load pertama), ≤ 1 detik dari cache; k6 `POST /api/transaksi` p95 ≤ 2 detik.
 - [ ] axe semua halaman; uji manual TalkBack satu alur kasir (H9).
 - [ ] `backup.yml` aktif; uji restore dump prod ke Supabase dev + cek invarian (NFR-09).
