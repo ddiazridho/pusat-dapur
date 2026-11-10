@@ -9,94 +9,9 @@
 import { execFileSync } from 'node:child_process';
 import { Prisma, PrismaClient } from '@prisma/client';
 
-// TODO(#3): ganti dengan import dari src/shared setelah #3 merge
-// (`DOMAIN_EMAIL_KASIR` di shared/akun.ts, template di shared/templates/resep.ts).
-// Nilai persis dari FRD akun-kasir.md dan resep.md → Template Resep.
-const DOMAIN_EMAIL_KASIR = 'kasir.pusatdapur.invalid';
-type Satuan = 'gram' | 'ml' | 'buah';
-const TEMPLATE_RESEP: { kode: string; nama_menu: string; bahan: [string, Satuan, number][] }[] = [
-  {
-    kode: 'nasi-goreng',
-    nama_menu: 'Nasi Goreng',
-    bahan: [
-      ['Nasi putih', 'gram', 200],
-      ['Telur ayam', 'buah', 1],
-      ['Kecap manis', 'ml', 15],
-      ['Minyak goreng', 'ml', 15],
-      ['Bawang merah', 'gram', 10],
-      ['Bawang putih', 'gram', 5],
-      ['Garam', 'gram', 2],
-    ],
-  },
-  {
-    kode: 'mie-ayam',
-    nama_menu: 'Mie Ayam',
-    bahan: [
-      ['Mie basah', 'gram', 150],
-      ['Daging ayam', 'gram', 50],
-      ['Sawi hijau', 'gram', 30],
-      ['Kecap manis', 'ml', 10],
-      ['Minyak goreng', 'ml', 10],
-      ['Bawang putih', 'gram', 5],
-    ],
-  },
-  {
-    kode: 'mie-goreng-telur',
-    nama_menu: 'Mie Goreng Telur',
-    bahan: [
-      ['Mi instan', 'buah', 1],
-      ['Telur ayam', 'buah', 1],
-      ['Sawi hijau', 'gram', 20],
-      ['Minyak goreng', 'ml', 10],
-    ],
-  },
-  {
-    kode: 'nasi-telur-dadar',
-    nama_menu: 'Nasi Telur Dadar',
-    bahan: [
-      ['Nasi putih', 'gram', 200],
-      ['Telur ayam', 'buah', 2],
-      ['Minyak goreng', 'ml', 15],
-      ['Garam', 'gram', 1],
-    ],
-  },
-  {
-    kode: 'es-teh-manis',
-    nama_menu: 'Es Teh Manis',
-    bahan: [
-      ['Teh celup', 'buah', 1],
-      ['Gula pasir', 'gram', 20],
-      ['Es batu', 'gram', 150],
-    ],
-  },
-  {
-    kode: 'teh-manis-panas',
-    nama_menu: 'Teh Manis Panas',
-    bahan: [
-      ['Teh celup', 'buah', 1],
-      ['Gula pasir', 'gram', 20],
-    ],
-  },
-  {
-    kode: 'es-jeruk',
-    nama_menu: 'Es Jeruk',
-    bahan: [
-      ['Jeruk peras', 'buah', 2],
-      ['Gula pasir', 'gram', 20],
-      ['Es batu', 'gram', 150],
-    ],
-  },
-  {
-    kode: 'kopi-susu',
-    nama_menu: 'Kopi Susu',
-    bahan: [
-      ['Kopi bubuk', 'gram', 15],
-      ['Susu kental manis', 'ml', 30],
-      ['Gula pasir', 'gram', 10],
-      ['Es batu', 'gram', 150],
-    ],
-  },
-];
+// Import relatif + ekstensi .ts: dijalankan Node --experimental-strip-types (tanpa alias @/).
+import { DOMAIN_EMAIL_KASIR } from '../src/shared/akun.ts';
+import { TEMPLATE_RESEP } from '../src/shared/templates/resep.ts';
 
 // Data uji saja (bukan FRD): harga beli per satuan, stok awal, threshold, harga jual.
 const BAHAN_UJI: Record<string, { harga: string; stok: string; threshold: string }> = {
@@ -219,7 +134,9 @@ async function seedOutlet(o: (typeof OUTLET_UJI)[number]) {
     });
 
     const bahanId = new Map<string, { id: string; harga: Prisma.Decimal }>();
-    const semuaBahan = new Map(TEMPLATE_RESEP.flatMap((t) => t.bahan.map(([n, s]) => [n, s])));
+    const semuaBahan = new Map(
+      TEMPLATE_RESEP.flatMap((t) => t.bahan.map((x) => [x.nama_bahan, x.satuan] as const)),
+    );
     for (const [nama, satuan] of semuaBahan) {
       const uji = BAHAN_UJI[nama]!;
       const bahan = await tx.bahanBaku.create({
@@ -264,7 +181,7 @@ async function seedOutlet(o: (typeof OUTLET_UJI)[number]) {
       // hpp-margin.md: Σ harga_beli_per_satuan × takaran, numeric(18,2) half-up.
       const hpp = t.bahan
         .reduce(
-          (total, [n, , takaran]) => total.add(bahanId.get(n)!.harga.mul(takaran)),
+          (total, x) => total.add(bahanId.get(x.nama_bahan)!.harga.mul(x.takaran)),
           new Prisma.Decimal(0),
         )
         .toDecimalPlaces(2, Prisma.Decimal.ROUND_HALF_UP);
@@ -277,11 +194,11 @@ async function seedOutlet(o: (typeof OUTLET_UJI)[number]) {
         },
       });
       await tx.resepDetail.createMany({
-        data: t.bahan.map(([n, , takaran]) => ({
+        data: t.bahan.map((x) => ({
           outlet_id: o.id,
           menu_id: menu.id,
-          bahan_baku_id: bahanId.get(n)!.id,
-          takaran,
+          bahan_baku_id: bahanId.get(x.nama_bahan)!.id,
+          takaran: x.takaran,
         })),
       });
     }
